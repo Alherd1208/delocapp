@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --tg-color-bg: #ffffff;
+  --tg-color-text: #000000;
+  --tg-color-hint: #999999;
+  --tg-color-link: #2481cc;
+  --tg-color-button: #2481cc;
+  --tg-color-button-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  --tg-color-bg: #212121;
+  --tg-color-text: #ffffff;
+  --tg-color-hint: #aaaaaa;
+  --tg-color-link: #8bb8e8;
+  --tg-color-button: #8bb8e8;
+  --tg-color-button-text: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background-color: var(--tg-color-bg);
+  color: var(--tg-color-text);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.tg-button {
+  background: var(--tg-color-button);
+  color: var(--tg-color-button-text);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.tg-button:hover {
+  opacity: 0.8;
+}
+
+.tg-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
