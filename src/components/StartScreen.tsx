@@ -2,7 +2,7 @@
 
 import { useStore } from '@/store/useStore'
 import { useEffect } from 'react'
-import { Truck, Package, Zap } from 'lucide-react'
+import { Truck, Package, Zap, Bug } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -41,6 +41,13 @@ export function StartScreen() {
             setUserType('customer')
             setScreen('create-order')
         }
+    }
+
+    const handleDebugOrders = () => {
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
+        }
+        setScreen('driver-orders')
     }
 
     return (
@@ -135,6 +142,19 @@ export function StartScreen() {
                             </CardContent>
                         </Card>
                     </div>
+                </div>
+
+                {/* Debug Button */}
+                <div className="text-center">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDebugOrders}
+                        className="text-xs text-muted-foreground border-dashed hover:border-solid"
+                    >
+                        <Bug className="w-3 h-3 mr-1" />
+                        Debug: View Orders
+                    </Button>
                 </div>
 
                 {/* Footer */}
