@@ -4,6 +4,8 @@ const nextConfig = {
     trailingSlash: true,
     skipTrailingSlashRedirect: true,
     distDir: 'dist',
+    basePath: '/delocapp',
+    assetPrefix: '/delocapp',
     images: {
         unoptimized: true
     }
