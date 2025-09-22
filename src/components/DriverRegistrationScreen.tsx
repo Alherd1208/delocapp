@@ -89,9 +89,9 @@ export function DriverRegistrationScreen() {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('success')
             }
 
-            // Navigate back (for now, to start)
+            // Navigate to driver orders screen after successful registration
             setTimeout(() => {
-                setScreen('start')
+                setScreen('driver-orders')
             }, 1000)
         } catch (error) {
             if (window.Telegram?.WebApp?.HapticFeedback) {

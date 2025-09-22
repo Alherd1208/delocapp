@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 
 export function StartScreen() {
-    const { setScreen, setUserType, setCurrentUser } = useStore()
+    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId } = useStore()
 
     useEffect(() => {
         // Get Telegram user data
@@ -27,7 +27,16 @@ export function StartScreen() {
 
         if (isDriver) {
             setUserType('driver')
-            setScreen('driver-registration')
+
+            // Check if driver is already registered
+            const existingDriver = getDriverByUserId(currentUser?.id?.toString() || 'anonymous')
+            if (existingDriver) {
+                // Driver already registered, go to orders screen
+                setScreen('driver-orders')
+            } else {
+                // Driver not registered, go to registration
+                setScreen('driver-registration')
+            }
         } else {
             setUserType('customer')
             setScreen('create-order')

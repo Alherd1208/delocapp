@@ -34,7 +34,7 @@ export interface Bid {
 }
 
 interface AppState {
-    currentScreen: 'start' | 'create-order' | 'driver-registration' | 'orders' | 'bids'
+    currentScreen: 'start' | 'create-order' | 'driver-registration' | 'driver-orders' | 'orders' | 'bids'
     userType: 'customer' | 'driver' | null
     orders: Order[]
     drivers: Driver[]
@@ -48,12 +48,57 @@ interface AppState {
     addDriver: (driver: Omit<Driver, 'id' | 'createdAt'>) => void
     addBid: (bid: Omit<Bid, 'id' | 'createdAt'>) => void
     setCurrentUser: (user: any) => void
+    getDriverByUserId: (userId: string) => Driver | undefined
 }
+
+// Sample orders for testing
+const sampleOrders: Order[] = [
+    {
+        id: 'sample1',
+        from: 'New York',
+        to: 'Los Angeles',
+        dimensions: { length: 100, width: 50, height: 30 },
+        paymentAmount: 500,
+        status: 'pending',
+        createdBy: 'sample_user',
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
+    },
+    {
+        id: 'sample2',
+        from: 'Chicago',
+        to: 'Miami',
+        dimensions: { length: 80, width: 60, height: 40 },
+        paymentAmount: 350,
+        status: 'pending',
+        createdBy: 'sample_user',
+        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000) // 1 hour ago
+    },
+    {
+        id: 'sample3',
+        from: 'New York',
+        to: 'Los Angeles',
+        dimensions: { length: 120, width: 70, height: 50 },
+        paymentAmount: 750,
+        status: 'pending',
+        createdBy: 'sample_user',
+        createdAt: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
+    },
+    {
+        id: 'sample4',
+        from: 'Seattle',
+        to: 'Portland',
+        dimensions: { length: 60, width: 40, height: 25 },
+        paymentAmount: 200,
+        status: 'pending',
+        createdBy: 'sample_user',
+        createdAt: new Date(Date.now() - 15 * 60 * 1000) // 15 minutes ago
+    }
+]
 
 export const useStore = create<AppState>((set, get) => ({
     currentScreen: 'start',
     userType: null,
-    orders: [],
+    orders: sampleOrders,
     drivers: [],
     bids: [],
     currentUser: null,
@@ -89,4 +134,9 @@ export const useStore = create<AppState>((set, get) => ({
     },
 
     setCurrentUser: (user) => set({ currentUser: user }),
+
+    getDriverByUserId: (userId) => {
+        const state = get()
+        return state.drivers.find(driver => driver.userId === userId)
+    },
 }))

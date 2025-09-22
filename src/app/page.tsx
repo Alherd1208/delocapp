@@ -4,6 +4,7 @@ import { useStore } from '@/store/useStore'
 import { StartScreen } from '@/components/StartScreen'
 import { CreateOrderScreen } from '@/components/CreateOrderScreen'
 import { DriverRegistrationScreen } from '@/components/DriverRegistrationScreen'
+import { DriverOrdersScreen } from '@/components/DriverOrdersScreen'
 
 export default function Home() {
     const { currentScreen } = useStore()
@@ -15,6 +16,8 @@ export default function Home() {
             return <CreateOrderScreen />
         case 'driver-registration':
             return <DriverRegistrationScreen />
+        case 'driver-orders':
+            return <DriverOrdersScreen />
         default:
             return <StartScreen />
     }
