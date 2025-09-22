@@ -13,6 +13,7 @@ export interface Order {
     status: 'pending' | 'assigned' | 'in_progress' | 'completed'
     createdBy: string
     assignedDriver?: string
+    chatId?: string // Telegram chat ID for driver-client communication
     createdAt: Date
 }
 
@@ -51,6 +52,8 @@ interface AppState {
     setCurrentUser: (user: any) => void
     getDriverByUserId: (userId: string) => Driver | undefined
     setDebugMode: (isDebug: boolean) => void
+    acceptOrder: (orderId: string, driverId: string) => void
+    updateOrderChatId: (orderId: string, chatId: string) => void
 }
 
 // Sample orders for testing
@@ -142,5 +145,25 @@ export const useStore = create<AppState>((set, get) => ({
     getDriverByUserId: (userId) => {
         const state = get()
         return state.drivers.find(driver => driver.userId === userId)
+    },
+
+    acceptOrder: (orderId, driverId) => {
+        set((state) => ({
+            orders: state.orders.map(order =>
+                order.id === orderId
+                    ? { ...order, status: 'assigned' as const, assignedDriver: driverId }
+                    : order
+            )
+        }))
+    },
+
+    updateOrderChatId: (orderId, chatId) => {
+        set((state) => ({
+            orders: state.orders.map(order =>
+                order.id === orderId
+                    ? { ...order, chatId }
+                    : order
+            )
+        }))
     },
 }))

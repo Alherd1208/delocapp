@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { telegramService } from '@/services/telegramService'
+import { useState } from 'react'
 import { Order, Driver } from '@/store/useStore'
 
 export function DriverOrdersScreen() {
-    const { setScreen, currentUser, getDriverByUserId, orders, isDebugMode, setDebugMode } = useStore()
+    const { setScreen, currentUser, getDriverByUserId, orders, isDebugMode, setDebugMode, acceptOrder } = useStore()
+    const [acceptingOrders, setAcceptingOrders] = useState<Set<string>>(new Set())
 
     const currentDriver = getDriverByUserId(currentUser?.id?.toString() || 'anonymous')
 
@@ -61,9 +64,9 @@ export function DriverOrdersScreen() {
 
         if (!currentDriver) return []
 
-        // Filter available orders (pending status and not excluded)
+        // Filter available orders (pending status and not excluded) and assigned orders to current driver
         const availableOrders = orders.filter(order =>
-            order.status === 'pending' &&
+            (order.status === 'pending' || (order.status === 'assigned' && order.assignedDriver === currentDriver.id)) &&
             !isOrderExcluded(order, currentDriver) &&
             doesCargoFit(order, currentDriver)
         )
@@ -96,6 +99,107 @@ export function DriverOrdersScreen() {
             hour: '2-digit',
             minute: '2-digit'
         })
+    }
+
+    const handleAcceptOrder = async (order: Order) => {
+        if (!currentUser || !currentDriver) {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error')
+            }
+            return
+        }
+
+        const orderId = order.id
+        const driverId = currentDriver.id
+
+        // Add to accepting set to show loading state
+        setAcceptingOrders(prev => {
+            const newSet = new Set(prev)
+            newSet.add(orderId)
+            return newSet
+        })
+
+        try {
+            // Haptic feedback for action
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium')
+            }
+
+            // Accept the order in the store
+            acceptOrder(orderId, driverId)
+
+            // Create Telegram chat or send notifications
+            const clientUser = {
+                id: parseInt(order.createdBy) || 0,
+                first_name: 'Client', // In a real app, this would come from user data
+                username: undefined
+            }
+
+            const driverUser = {
+                id: currentUser.id || 0,
+                first_name: currentUser.first_name || 'Driver',
+                last_name: currentUser.last_name,
+                username: currentUser.username
+            }
+
+            const orderInfo = {
+                id: order.id,
+                from: order.from,
+                to: order.to,
+                paymentAmount: order.paymentAmount
+            }
+
+            // Try to create chat or send notifications
+            const result = await telegramService.createChatBetweenUsers(
+                clientUser,
+                driverUser,
+                orderInfo
+            )
+
+            if (result.success) {
+                // Show success message
+                if (window.Telegram?.WebApp?.showAlert) {
+                    window.Telegram.WebApp.showAlert(
+                        `✅ Order accepted successfully!\n\nYou and the client will be connected for communication. Check your Telegram messages for contact details.`
+                    )
+                } else if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success')
+                }
+
+                // Also try to send notification
+                await telegramService.notifyOrderAccepted(
+                    orderId,
+                    order.createdBy,
+                    currentUser.id?.toString() || '',
+                    orderInfo
+                )
+            } else {
+                // Fallback success message
+                if (window.Telegram?.WebApp?.showAlert) {
+                    window.Telegram.WebApp.showAlert(
+                        `✅ Order accepted!\n\nThe order has been assigned to you. Please contact the client directly to coordinate pickup and delivery details.`
+                    )
+                }
+            }
+
+        } catch (error) {
+            console.error('Error accepting order:', error)
+
+            if (window.Telegram?.WebApp?.showAlert) {
+                window.Telegram.WebApp.showAlert(
+                    `⚠️ Order accepted, but there was an issue setting up communication. Please contact the client directly.`
+                )
+            } else if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('warning')
+            }
+        } finally {
+            // Remove from accepting set
+            setAcceptingOrders(prev => {
+                const newSet = new Set(prev)
+                newSet.delete(orderId)
+                return newSet
+            })
+        }
     }
 
     if (!currentDriver && !isDebugMode) {
@@ -162,9 +266,12 @@ export function DriverOrdersScreen() {
                 ) : (
                     sortedOrders.map((order) => {
                         const isPriority = currentDriver ? isOrderPriority(order, currentDriver) : false
+                        const isAssigned = order.status === 'assigned' && order.assignedDriver === currentDriver?.id
 
                         return (
-                            <Card key={order.id} className={`transition-all hover:shadow-md ${isPriority ? 'border-yellow-500 bg-yellow-50/50' : ''}`}>
+                            <Card key={order.id} className={`transition-all hover:shadow-md ${isAssigned ? 'border-green-500 bg-green-50/50' :
+                                    isPriority ? 'border-yellow-500 bg-yellow-50/50' : ''
+                                }`}>
                                 <CardHeader className="pb-3">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
@@ -172,7 +279,12 @@ export function DriverOrdersScreen() {
                                                 <CardTitle className="text-base">
                                                     Order #{order.id.slice(0, 6)}
                                                 </CardTitle>
-                                                {isPriority && (
+                                                {isAssigned && (
+                                                    <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">
+                                                        ✅ Accepted
+                                                    </Badge>
+                                                )}
+                                                {isPriority && !isAssigned && (
                                                     <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-300">
                                                         <Star className="h-3 w-3 mr-1" />
                                                         Priority
@@ -217,29 +329,65 @@ export function DriverOrdersScreen() {
 
                                     {/* Action Buttons */}
                                     <div className="flex gap-2 pt-2">
-                                        <Button
-                                            className="flex-1"
-                                            onClick={() => {
-                                                if (window.Telegram?.WebApp?.HapticFeedback) {
-                                                    window.Telegram.WebApp.HapticFeedback.impactOccurred('medium')
-                                                }
-                                                // TODO: Implement accept functionality
-                                            }}
-                                        >
-                                            Accept
-                                        </Button>
-                                        <Button
-                                            variant="destructive"
-                                            className="flex-1"
-                                            onClick={() => {
-                                                if (window.Telegram?.WebApp?.HapticFeedback) {
-                                                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
-                                                }
-                                                // TODO: Implement reject functionality
-                                            }}
-                                        >
-                                            Reject
-                                        </Button>
+                                        {isAssigned ? (
+                                            <>
+                                                <Button
+                                                    variant="outline"
+                                                    className="flex-1"
+                                                    onClick={() => {
+                                                        if (window.Telegram?.WebApp?.HapticFeedback) {
+                                                            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
+                                                        }
+                                                        // TODO: Implement contact client functionality
+                                                        if (window.Telegram?.WebApp?.showAlert) {
+                                                            window.Telegram.WebApp.showAlert(
+                                                                '📞 Contact the client directly via Telegram to coordinate pickup and delivery details.'
+                                                            )
+                                                        }
+                                                    }}
+                                                >
+                                                    💬 Contact Client
+                                                </Button>
+                                                <Button
+                                                    className="flex-1"
+                                                    onClick={() => {
+                                                        if (window.Telegram?.WebApp?.HapticFeedback) {
+                                                            window.Telegram.WebApp.HapticFeedback.impactOccurred('medium')
+                                                        }
+                                                        // TODO: Implement start delivery functionality
+                                                        if (window.Telegram?.WebApp?.showAlert) {
+                                                            window.Telegram.WebApp.showAlert(
+                                                                '🚚 Starting delivery... (This feature will be implemented soon)'
+                                                            )
+                                                        }
+                                                    }}
+                                                >
+                                                    🚚 Start Delivery
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Button
+                                                    className="flex-1"
+                                                    onClick={() => handleAcceptOrder(order)}
+                                                    disabled={acceptingOrders.has(order.id) || order.status !== 'pending'}
+                                                >
+                                                    {acceptingOrders.has(order.id) ? 'Accepting...' : 'Accept'}
+                                                </Button>
+                                                <Button
+                                                    variant="destructive"
+                                                    className="flex-1"
+                                                    onClick={() => {
+                                                        if (window.Telegram?.WebApp?.HapticFeedback) {
+                                                            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
+                                                        }
+                                                        // TODO: Implement reject functionality
+                                                    }}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>

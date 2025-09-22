@@ -50,6 +50,17 @@ declare global {
                     notificationOccurred: (type: 'error' | 'success' | 'warning') => void
                     selectionChanged: () => void
                 }
+                showAlert: (message: string, callback?: () => void) => void
+                showConfirm: (message: string, callback?: (confirmed: boolean) => void) => void
+                showPopup: (params: {
+                    title?: string
+                    message: string
+                    buttons?: Array<{
+                        id?: string
+                        type?: 'default' | 'ok' | 'close' | 'cancel' | 'destructive'
+                        text: string
+                    }>
+                }, callback?: (buttonId: string) => void) => void
             }
         }
     }
