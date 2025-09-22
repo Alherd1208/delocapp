@@ -3,6 +3,13 @@
 import { useStore } from '@/store/useStore'
 import { useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
+import { ArrowLeft, Plus, Minus, Truck, AlertTriangle, Package } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import { CitySelector } from './CitySelector'
 
 interface DriverForm {
@@ -103,200 +110,274 @@ export function DriverRegistrationScreen() {
     }
 
     return (
-        <div className="min-h-screen bg-tg-bg">
-            <div className="sticky top-0 bg-tg-bg border-b border-gray-200 p-4">
-                <div className="flex items-center space-x-4">
-                    <button
+        <div className="min-h-screen bg-background">
+            {/* Header */}
+            <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b z-50">
+                <div className="flex items-center gap-4 p-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={goBack}
-                        className="p-2 hover:bg-gray-100 rounded-full"
+                        className="h-9 w-9"
                     >
-                        <svg className="w-6 h-6 text-tg-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </button>
-                    <h1 className="text-xl font-semibold text-tg-text">Driver Registration</h1>
+                        <ArrowLeft className="h-4 w-4" />
+                    </Button>
+                    <div>
+                        <h1 className="text-xl font-semibold">Driver Registration</h1>
+                        <p className="text-sm text-muted-foreground">Setup your delivery preferences</p>
+                    </div>
                 </div>
             </div>
 
-            <div className="p-6">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="p-6 space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {/* Priority Directions */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-medium text-tg-text">Priority Directions</h2>
-                            <button
-                                type="button"
-                                onClick={() => appendPriority({ from: '', to: '' })}
-                                className="text-tg-button font-medium text-sm"
-                            >
-                                + Add
-                            </button>
-                        </div>
-
-                        {priorityFields.map((field, index) => (
-                            <div key={field.id} className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-gray-600">Direction #{index + 1}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => removePriority(index)}
-                                        className="text-red-500 text-sm"
-                                    >
-                                        Remove
-                                    </button>
+                    <Card>
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Truck className="h-5 w-5" />
+                                        Priority Directions
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Routes you prefer to drive
+                                    </CardDescription>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">From</label>
-                                        <CitySelector
-                                            value={watch(`priorityDirections.${index}.from`) || ''}
-                                            onChange={(value) => setValue(`priorityDirections.${index}.from`, value)}
-                                            placeholder="Select from city"
-                                            className="text-sm"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">To</label>
-                                        <CitySelector
-                                            value={watch(`priorityDirections.${index}.to`) || ''}
-                                            onChange={(value) => setValue(`priorityDirections.${index}.to`, value)}
-                                            placeholder="Select to city"
-                                            className="text-sm"
-                                        />
-                                    </div>
-                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => appendPriority({ from: '', to: '' })}
+                                    className="gap-2"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add Route
+                                </Button>
                             </div>
-                        ))}
-                    </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {priorityFields.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <Truck className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                    <p>No priority routes added yet</p>
+                                    <p className="text-sm">Click "Add Route" to get started</p>
+                                </div>
+                            ) : (
+                                priorityFields.map((field, index) => (
+                                    <Card key={field.id} className="bg-green-50/50 border-green-200">
+                                        <CardContent className="pt-4">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <Badge variant="secondary" className="bg-green-100 text-green-700">
+                                                    Route #{index + 1}
+                                                </Badge>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => removePriority(index)}
+                                                    className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                                                >
+                                                    <Minus className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <Label>From</Label>
+                                                    <CitySelector
+                                                        value={watch(`priorityDirections.${index}.from`) || ''}
+                                                        onChange={(value) => setValue(`priorityDirections.${index}.from`, value)}
+                                                        placeholder="Select from city"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>To</Label>
+                                                    <CitySelector
+                                                        value={watch(`priorityDirections.${index}.to`) || ''}
+                                                        onChange={(value) => setValue(`priorityDirections.${index}.to`, value)}
+                                                        placeholder="Select to city"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            )}
+                        </CardContent>
+                    </Card>
 
                     {/* Excluded Directions */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-medium text-tg-text">Excluded Directions</h2>
-                            <button
-                                type="button"
-                                onClick={() => appendExcluded({ from: '', to: '' })}
-                                className="text-tg-button font-medium text-sm"
-                            >
-                                + Add
-                            </button>
-                        </div>
-
-                        {excludedFields.map((field, index) => (
-                            <div key={field.id} className="space-y-3 p-4 bg-red-50 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-red-600">Excluded #{index + 1}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeExcluded(index)}
-                                        className="text-red-500 text-sm"
-                                    >
-                                        Remove
-                                    </button>
+                    <Card>
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <AlertTriangle className="h-5 w-5" />
+                                        Excluded Directions
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Routes you don't want to drive
+                                    </CardDescription>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">From</label>
-                                        <CitySelector
-                                            value={watch(`excludedDirections.${index}.from`) || ''}
-                                            onChange={(value) => setValue(`excludedDirections.${index}.from`, value)}
-                                            placeholder="Select from city"
-                                            className="text-sm"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">To</label>
-                                        <CitySelector
-                                            value={watch(`excludedDirections.${index}.to`) || ''}
-                                            onChange={(value) => setValue(`excludedDirections.${index}.to`, value)}
-                                            placeholder="Select to city"
-                                            className="text-sm"
-                                        />
-                                    </div>
-                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => appendExcluded({ from: '', to: '' })}
+                                    className="gap-2"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add Route
+                                </Button>
                             </div>
-                        ))}
-                    </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {excludedFields.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                    <p>No excluded routes added yet</p>
+                                    <p className="text-sm">Click "Add Route" to exclude specific routes</p>
+                                </div>
+                            ) : (
+                                excludedFields.map((field, index) => (
+                                    <Card key={field.id} className="bg-red-50/50 border-red-200">
+                                        <CardContent className="pt-4">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <Badge variant="secondary" className="bg-red-100 text-red-700">
+                                                    Excluded #{index + 1}
+                                                </Badge>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => removeExcluded(index)}
+                                                    className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                                                >
+                                                    <Minus className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <Label>From</Label>
+                                                    <CitySelector
+                                                        value={watch(`excludedDirections.${index}.from`) || ''}
+                                                        onChange={(value) => setValue(`excludedDirections.${index}.from`, value)}
+                                                        placeholder="Select from city"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>To</Label>
+                                                    <CitySelector
+                                                        value={watch(`excludedDirections.${index}.to`) || ''}
+                                                        onChange={(value) => setValue(`excludedDirections.${index}.to`, value)}
+                                                        placeholder="Select to city"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))
+                            )}
+                        </CardContent>
+                    </Card>
 
                     {/* Cargo Volumes */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-lg font-medium text-tg-text">Cargo Volumes</h2>
-                            <button
-                                type="button"
-                                onClick={() => appendVolume({ length: 0, width: 0, height: 0 })}
-                                className="text-tg-button font-medium text-sm"
-                            >
-                                + Add
-                            </button>
-                        </div>
-
-                        {volumeFields.map((field, index) => (
-                            <div key={field.id} className="space-y-3 p-4 bg-blue-50 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-medium text-blue-600">Volume #{index + 1}</span>
-                                    {volumeFields.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeVolume(index)}
-                                            className="text-red-500 text-sm"
-                                        >
-                                            Remove
-                                        </button>
-                                    )}
+                    <Card>
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Package className="h-5 w-5" />
+                                        Cargo Volumes
+                                    </CardTitle>
+                                    <CardDescription>
+                                        Maximum cargo sizes you can handle
+                                    </CardDescription>
                                 </div>
-
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">Length (m)</label>
-                                        <input
-                                            {...register(`cargoVolumes.${index}.length` as const, {
-                                                min: { value: 0.1, message: 'Min 0.1m' }
-                                            })}
-                                            type="number"
-                                            step="0.1"
-                                            placeholder="0.0"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">Width (m)</label>
-                                        <input
-                                            {...register(`cargoVolumes.${index}.width` as const, {
-                                                min: { value: 0.1, message: 'Min 0.1m' }
-                                            })}
-                                            type="number"
-                                            step="0.1"
-                                            placeholder="0.0"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs text-gray-600 mb-1">Height (m)</label>
-                                        <input
-                                            {...register(`cargoVolumes.${index}.height` as const, {
-                                                min: { value: 0.1, message: 'Min 0.1m' }
-                                            })}
-                                            type="number"
-                                            step="0.1"
-                                            placeholder="0.0"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                        />
-                                    </div>
-                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => appendVolume({ length: 0, width: 0, height: 0 })}
+                                    className="gap-2"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add Size
+                                </Button>
                             </div>
-                        ))}
-                    </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {volumeFields.map((field, index) => (
+                                <Card key={field.id} className="bg-blue-50/50 border-blue-200">
+                                    <CardContent className="pt-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                                                Volume #{index + 1}
+                                            </Badge>
+                                            {volumeFields.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => removeVolume(index)}
+                                                    className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                                                >
+                                                    <Minus className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
 
-                    <button
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="space-y-2">
+                                                <Label>Length (m)</Label>
+                                                <Input
+                                                    {...register(`cargoVolumes.${index}.length` as const, {
+                                                        min: { value: 0.1, message: 'Min 0.1m' }
+                                                    })}
+                                                    type="number"
+                                                    step="0.1"
+                                                    placeholder="0.0"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Width (m)</Label>
+                                                <Input
+                                                    {...register(`cargoVolumes.${index}.width` as const, {
+                                                        min: { value: 0.1, message: 'Min 0.1m' }
+                                                    })}
+                                                    type="number"
+                                                    step="0.1"
+                                                    placeholder="0.0"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Height (m)</Label>
+                                                <Input
+                                                    {...register(`cargoVolumes.${index}.height` as const, {
+                                                        min: { value: 0.1, message: 'Min 0.1m' }
+                                                    })}
+                                                    type="number"
+                                                    step="0.1"
+                                                    placeholder="0.0"
+                                                />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </CardContent>
+                    </Card>
+
+                    <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full tg-button py-4 text-lg font-medium rounded-lg disabled:opacity-50"
+                        className="w-full h-12 text-base font-medium"
+                        size="lg"
                     >
                         {isSubmitting ? 'Registering...' : 'Register as Driver'}
-                    </button>
+                    </Button>
                 </form>
             </div>
         </div>

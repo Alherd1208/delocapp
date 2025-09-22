@@ -1,6 +1,16 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { Check, ChevronDown, Search } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { searchCities, CITIES_BY_COUNTRY, COUNTRIES, type City } from '@/data/cities'
 
 interface CitySelectorProps {
@@ -15,26 +25,11 @@ export function CitySelector({ value, onChange, placeholder = "Select city", cla
     const [isOpen, setIsOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [selectedCountry, setSelectedCountry] = useState<string>('all')
-    const dropdownRef = useRef<HTMLDivElement>(null)
-    const inputRef = useRef<HTMLInputElement>(null)
 
     // Filter cities based on search query and selected country
     const filteredCities = searchCities(searchQuery).filter(city =>
         selectedCountry === 'all' || city.country === selectedCountry
     )
-
-    // Close dropdown when clicking outside
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false)
-                setSearchQuery('')
-            }
-        }
-
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
-    }, [])
 
     const handleCitySelect = (city: City) => {
         const cityDisplay = `${city.name}, ${city.country}`
@@ -48,109 +43,120 @@ export function CitySelector({ value, onChange, placeholder = "Select city", cla
         }
     }
 
-    const handleInputClick = () => {
-        setIsOpen(!isOpen)
-        if (!isOpen) {
-            // Focus the search input when opening
-            setTimeout(() => inputRef.current?.focus(), 100)
-        }
-    }
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value)
-        setIsOpen(true)
-    }
+    const selectedCity = value ? filteredCities.find(city => `${city.name}, ${city.country}` === value) : null
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            {/* Main input field */}
-            <div
-                onClick={handleInputClick}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-lg cursor-pointer focus-within:ring-2 focus-within:ring-tg-button focus-within:border-transparent ${className} ${error ? 'border-red-500' : ''}`}
-            >
-                <div className="flex items-center justify-between">
-                    <span className={value ? 'text-tg-text' : 'text-gray-400'}>
-                        {value || placeholder}
-                    </span>
-                    <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+        <div className={cn("space-y-2", className)}>
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isOpen}
+                        className={cn(
+                            "w-full justify-between h-auto py-3 px-4",
+                            !value && "text-muted-foreground",
+                            error && "border-destructive"
+                        )}
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
-            </div>
+                        <div className="flex items-center gap-2">
+                            {selectedCity && (
+                                <Badge variant="secondary" className="text-xs">
+                                    {selectedCity.country}
+                                </Badge>
+                            )}
+                            <span className="truncate">
+                                {value || placeholder}
+                            </span>
+                        </div>
+                        <ChevronDown className={cn("h-4 w-4 shrink-0 opacity-50 transition-transform", isOpen && "rotate-180")} />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                    <Command>
+                        <div className="p-3 space-y-3 border-b">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search cities..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
 
-            {/* Error message */}
-            {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
-            )}
-
-            {/* Dropdown */}
-            {isOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-80 overflow-hidden">
-                    {/* Search and filter header */}
-                    <div className="p-3 border-b border-gray-200 space-y-3">
-                        {/* Search input */}
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={searchQuery}
-                            onChange={handleSearchChange}
-                            placeholder="Search cities..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                        />
-
-                        {/* Country filter */}
-                        <select
-                            value={selectedCountry}
-                            onChange={(e) => setSelectedCountry(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                        >
-                            <option value="all">All Countries</option>
-                            {COUNTRIES.map(country => (
-                                <option key={country} value={country}>
-                                    {country} ({CITIES_BY_COUNTRY[country].length})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Cities list */}
-                    <div className="max-h-60 overflow-y-auto">
-                        {filteredCities.length > 0 ? (
-                            <div className="py-2">
-                                {filteredCities.map((city, index) => (
-                                    <button
-                                        key={`${city.name}-${city.country}-${index}`}
-                                        onClick={() => handleCitySelect(city)}
-                                        className="w-full px-4 py-2 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <div className="font-medium text-tg-text">{city.name}</div>
-                                                <div className="text-sm text-gray-500">
-                                                    {city.country}{city.region ? `, ${city.region}` : ''}
-                                                </div>
+                            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Filter by country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All Countries ({filteredCities.length})
+                                    </SelectItem>
+                                    <Separator className="my-1" />
+                                    {COUNTRIES.map(country => (
+                                        <SelectItem key={country} value={country}>
+                                            <div className="flex items-center justify-between w-full">
+                                                <span>{country}</span>
+                                                <Badge variant="outline" className="ml-2 text-xs">
+                                                    {CITIES_BY_COUNTRY[country].length}
+                                                </Badge>
                                             </div>
-                                            <div className="text-xs text-gray-400">
-                                                {city.country}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <CommandList>
+                            <ScrollArea className="h-60">
+                                {filteredCities.length > 0 ? (
+                                    <CommandGroup>
+                                        {filteredCities.map((city, index) => (
+                                            <CommandItem
+                                                key={`${city.name}-${city.country}-${index}`}
+                                                value={`${city.name}, ${city.country}`}
+                                                onSelect={() => handleCitySelect(city)}
+                                                className="flex items-center justify-between py-3 cursor-pointer"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex flex-col">
+                                                        <div className="font-medium">{city.name}</div>
+                                                        <div className="text-sm text-muted-foreground">
+                                                            {city.country}{city.region ? `, ${city.region}` : ''}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="outline" className="text-xs">
+                                                        {city.country}
+                                                    </Badge>
+                                                    {value === `${city.name}, ${city.country}` && (
+                                                        <Check className="h-4 w-4 text-primary" />
+                                                    )}
+                                                </div>
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                ) : (
+                                    <CommandEmpty>
+                                        <div className="flex flex-col items-center gap-2 py-8">
+                                            <Search className="h-8 w-8 text-muted-foreground" />
+                                            <div className="text-sm font-medium">No cities found</div>
+                                            <div className="text-xs text-muted-foreground">
+                                                Try adjusting your search or filter
                                             </div>
                                         </div>
-                                    </button>
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="px-4 py-8 text-center text-gray-500">
-                                <div className="text-lg mb-2">🔍</div>
-                                <div>No cities found</div>
-                                <div className="text-sm">Try adjusting your search or filter</div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                                    </CommandEmpty>
+                                )}
+                            </ScrollArea>
+                        </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
+
+            {error && (
+                <p className="text-sm text-destructive">{error}</p>
             )}
         </div>
     )

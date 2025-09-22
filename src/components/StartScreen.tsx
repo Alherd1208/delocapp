@@ -2,6 +2,10 @@
 
 import { useStore } from '@/store/useStore'
 import { useEffect } from 'react'
+import { Truck, Package, Zap } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 export function StartScreen() {
     const { setScreen, setUserType, setCurrentUser } = useStore()
@@ -31,47 +35,115 @@ export function StartScreen() {
     }
 
     return (
-        <div className="min-h-screen bg-tg-bg flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-lg mx-auto text-center space-y-12">
-                <div className="space-y-6">
-                    <div className="w-24 h-24 mx-auto bg-tg-button rounded-full flex items-center justify-center shadow-lg">
-                        <svg className="w-12 h-12 text-tg-button-text" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                            <path d="M3 4a1 1 0 00-1 1v1a1 1 0 001 1h1l.94 3.76A2 2 0 006.88 12h4.24a2 2 0 001.94-1.24L14 8h2a1 1 0 100-2H3.28L3 4z" />
-                        </svg>
+        <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex flex-col items-center justify-center p-6">
+            <div className="w-full max-w-lg mx-auto space-y-8">
+                {/* Header */}
+                <div className="text-center space-y-4">
+                    <div className="relative">
+                        <div className="w-20 h-20 mx-auto bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+                            <Zap className="w-10 h-10 text-primary-foreground" />
+                        </div>
+                        <Badge className="absolute -top-2 -right-2 bg-green-500 hover:bg-green-500">
+                            Live
+                        </Badge>
                     </div>
-                    <h1 className="text-3xl font-bold text-tg-text">
-                        Welcome to Cargo TMA
-                    </h1>
-                    <p className="text-tg-hint text-xl">
-                        Connect cargo owners with drivers for efficient delivery
-                    </p>
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            CryptoLoc Delivery
+                        </h1>
+                        <p className="text-muted-foreground text-lg mt-2">
+                            Secure crypto-powered logistics platform
+                        </p>
+                    </div>
                 </div>
 
-                <div className="space-y-8">
-                    <h2 className="text-2xl font-semibold text-tg-text">
-                        Are you a driver?
+                {/* Role Selection */}
+                <div className="space-y-4">
+                    <h2 className="text-xl font-semibold text-center">
+                        Choose your role
                     </h2>
 
-                    <div className="space-y-6">
-                        <button
+                    <div className="grid gap-4">
+                        {/* Driver Card */}
+                        <Card
+                            className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] border-2 hover:border-primary/50"
                             onClick={() => handleDriverChoice(true)}
-                            className="w-full tg-button text-2xl py-8 rounded-2xl font-semibold shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95"
                         >
-                            🚛 Yes, I'm a Driver
-                        </button>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="flex items-center gap-3 text-lg">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <Truck className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    I'm a Driver
+                                </CardTitle>
+                                <CardDescription className="text-base">
+                                    Transport cargo and earn crypto payments
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                        Earn Money
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs">
+                                        Flexible Routes
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs">
+                                        Crypto Payments
+                                    </Badge>
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                        <button
+                        {/* Customer Card */}
+                        <Card
+                            className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] border-2 hover:border-primary/50"
                             onClick={() => handleDriverChoice(false)}
-                            className="w-full bg-gray-100 text-gray-700 border-2 border-gray-200 py-8 rounded-2xl text-2xl font-semibold hover:bg-gray-200 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
                         >
-                            📦 No, I need to send cargo
-                        </button>
+                            <CardHeader className="pb-3">
+                                <CardTitle className="flex items-center gap-3 text-lg">
+                                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <Package className="w-5 h-5 text-green-600" />
+                                    </div>
+                                    I need delivery
+                                </CardTitle>
+                                <CardDescription className="text-base">
+                                    Send packages across multiple countries
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                                <div className="flex flex-wrap gap-2">
+                                    <Badge variant="secondary" className="text-xs">
+                                        Fast Delivery
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs">
+                                        Secure Tracking
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs">
+                                        Multi-Country
+                                    </Badge>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
 
-                <div className="text-base text-tg-hint">
-                    Choose your role to get started with the platform
+                {/* Footer */}
+                <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">
+                        Powered by blockchain technology
+                    </p>
+                    <div className="flex items-center justify-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                            160+ Cities
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                            9 Countries
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                            Secure
+                        </Badge>
+                    </div>
                 </div>
             </div>
         </div>
