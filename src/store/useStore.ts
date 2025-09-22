@@ -1,38 +1,5 @@
 import { create } from 'zustand'
-
-export interface Order {
-    id: string
-    from: string
-    to: string
-    dimensions: {
-        length: number
-        width: number
-        height: number
-    }
-    paymentAmount: number
-    status: 'pending' | 'assigned' | 'in_progress' | 'completed'
-    createdBy: string
-    assignedDriver?: string
-    chatId?: string // Telegram chat ID for driver-client communication
-    createdAt: Date
-}
-
-export interface Driver {
-    id: string
-    userId: string
-    priorityDirections: Array<{ from: string; to: string }>
-    excludedDirections: Array<{ from: string; to: string }>
-    cargoVolumes: Array<{ length: number; width: number; height: number }>
-    createdAt: Date
-}
-
-export interface Bid {
-    id: string
-    orderId: string
-    driverId: string
-    amount: number
-    createdAt: Date
-}
+import { Order, Driver, Bid } from '../lib/models'
 
 interface AppState {
     currentScreen: 'start' | 'create-order' | 'driver-registration' | 'driver-orders' | 'orders' | 'bids'
@@ -46,14 +13,17 @@ interface AppState {
     // Actions
     setScreen: (screen: AppState['currentScreen']) => void
     setUserType: (type: AppState['userType']) => void
-    addOrder: (order: Omit<Order, 'id' | 'createdAt'>) => void
-    addDriver: (driver: Omit<Driver, 'id' | 'createdAt'>) => void
-    addBid: (bid: Omit<Bid, 'id' | 'createdAt'>) => void
+    addOrder: (order: Omit<Order, 'id' | 'createdAt'>) => Promise<void>
+    addDriver: (driver: Omit<Driver, 'id' | 'createdAt'>) => Promise<void>
+    addBid: (bid: Omit<Bid, 'id' | 'createdAt'>) => Promise<void>
     setCurrentUser: (user: any) => void
     getDriverByUserId: (userId: string) => Driver | undefined
     setDebugMode: (isDebug: boolean) => void
-    acceptOrder: (orderId: string, driverId: string) => void
-    updateOrderChatId: (orderId: string, chatId: string) => void
+    acceptOrder: (orderId: string, driverId: string) => Promise<void>
+    updateOrderChatId: (orderId: string, chatId: string) => Promise<void>
+    loadOrders: () => Promise<void>
+    loadDrivers: () => Promise<void>
+    loadBids: () => Promise<void>
 }
 
 // Sample orders for testing
@@ -113,31 +83,103 @@ export const useStore = create<AppState>((set, get) => ({
     setUserType: (type) => set({ userType: type }),
     setDebugMode: (isDebug) => set({ isDebugMode: isDebug }),
 
-    addOrder: (orderData) => {
-        const order: Order = {
-            ...orderData,
-            id: Math.random().toString(36).substr(2, 9),
-            createdAt: new Date(),
+    loadOrders: async () => {
+        try {
+            const response = await fetch('/api/orders');
+            if (response.ok) {
+                const orders = await response.json();
+                set({ orders });
+            }
+        } catch (error) {
+            console.error('Failed to load orders:', error);
         }
-        set((state) => ({ orders: [...state.orders, order] }))
     },
 
-    addDriver: (driverData) => {
-        const driver: Driver = {
-            ...driverData,
-            id: Math.random().toString(36).substr(2, 9),
-            createdAt: new Date(),
+    loadDrivers: async () => {
+        try {
+            const response = await fetch('/api/drivers');
+            if (response.ok) {
+                const drivers = await response.json();
+                set({ drivers });
+            }
+        } catch (error) {
+            console.error('Failed to load drivers:', error);
         }
-        set((state) => ({ drivers: [...state.drivers, driver] }))
     },
 
-    addBid: (bidData) => {
-        const bid: Bid = {
-            ...bidData,
-            id: Math.random().toString(36).substr(2, 9),
-            createdAt: new Date(),
+    loadBids: async () => {
+        try {
+            const response = await fetch('/api/bids');
+            if (response.ok) {
+                const bids = await response.json();
+                set({ bids });
+            }
+        } catch (error) {
+            console.error('Failed to load bids:', error);
         }
-        set((state) => ({ bids: [...state.bids, bid] }))
+    },
+
+    addOrder: async (orderData) => {
+        try {
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            if (response.ok) {
+                const order = await response.json();
+                set((state) => ({ orders: [...state.orders, order] }));
+            } else {
+                console.error('Failed to create order');
+            }
+        } catch (error) {
+            console.error('Failed to create order:', error);
+        }
+    },
+
+    addDriver: async (driverData) => {
+        try {
+            const response = await fetch('/api/drivers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(driverData),
+            });
+
+            if (response.ok) {
+                const driver = await response.json();
+                set((state) => ({ drivers: [...state.drivers, driver] }));
+            } else {
+                console.error('Failed to create driver');
+            }
+        } catch (error) {
+            console.error('Failed to create driver:', error);
+        }
+    },
+
+    addBid: async (bidData) => {
+        try {
+            const response = await fetch('/api/bids', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bidData),
+            });
+
+            if (response.ok) {
+                const bid = await response.json();
+                set((state) => ({ bids: [...state.bids, bid] }));
+            } else {
+                console.error('Failed to create bid');
+            }
+        } catch (error) {
+            console.error('Failed to create bid:', error);
+        }
     },
 
     setCurrentUser: (user) => set({ currentUser: user }),
@@ -147,23 +189,56 @@ export const useStore = create<AppState>((set, get) => ({
         return state.drivers.find(driver => driver.userId === userId)
     },
 
-    acceptOrder: (orderId, driverId) => {
-        set((state) => ({
-            orders: state.orders.map(order =>
-                order.id === orderId
-                    ? { ...order, status: 'assigned' as const, assignedDriver: driverId }
-                    : order
-            )
-        }))
+    acceptOrder: async (orderId, driverId) => {
+        try {
+            const response = await fetch(`/api/orders/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: 'assigned',
+                    assignedDriver: driverId,
+                }),
+            });
+
+            if (response.ok) {
+                const updatedOrder = await response.json();
+                set((state) => ({
+                    orders: state.orders.map(order =>
+                        order.id === orderId ? updatedOrder : order
+                    )
+                }));
+            } else {
+                console.error('Failed to accept order');
+            }
+        } catch (error) {
+            console.error('Failed to accept order:', error);
+        }
     },
 
-    updateOrderChatId: (orderId, chatId) => {
-        set((state) => ({
-            orders: state.orders.map(order =>
-                order.id === orderId
-                    ? { ...order, chatId }
-                    : order
-            )
-        }))
+    updateOrderChatId: async (orderId, chatId) => {
+        try {
+            const response = await fetch(`/api/orders/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ chatId }),
+            });
+
+            if (response.ok) {
+                const updatedOrder = await response.json();
+                set((state) => ({
+                    orders: state.orders.map(order =>
+                        order.id === orderId ? updatedOrder : order
+                    )
+                }));
+            } else {
+                console.error('Failed to update order chat ID');
+            }
+        } catch (error) {
+            console.error('Failed to update order chat ID:', error);
+        }
     },
 }))

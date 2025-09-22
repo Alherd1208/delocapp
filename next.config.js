@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',
+    // Removed 'output: export' to enable API routes for MongoDB integration
+    // API routes require server-side rendering capabilities
     trailingSlash: true,
     skipTrailingSlashRedirect: true,
-    distDir: 'dist',
-    basePath: '/delocapp',
-    assetPrefix: '/delocapp',
     images: {
         unoptimized: true
     }

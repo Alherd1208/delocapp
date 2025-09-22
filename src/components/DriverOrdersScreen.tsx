@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { telegramService } from '@/services/telegramService'
 import { useState } from 'react'
-import { Order, Driver } from '@/store/useStore'
+import { Order, Driver } from '@/lib/models'
 
 export function DriverOrdersScreen() {
     const { setScreen, currentUser, getDriverByUserId, orders, isDebugMode, setDebugMode, acceptOrder } = useStore()
