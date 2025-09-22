@@ -3,6 +3,7 @@
 import { useStore } from '@/store/useStore'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { CitySelector } from './CitySelector'
 
 interface OrderForm {
     from: string
@@ -21,8 +22,13 @@ export function CreateOrderScreen() {
         register,
         handleSubmit,
         formState: { errors },
-        watch
+        watch,
+        setValue
     } = useForm<OrderForm>()
+
+    // Register city fields with validation
+    register('from', { required: 'From location is required' })
+    register('to', { required: 'Destination is required' })
 
     const dimensions = watch(['length', 'width', 'height'])
     const volume = dimensions.every(d => d > 0)
@@ -101,30 +107,24 @@ export function CreateOrderScreen() {
                             <label className="block text-sm font-medium text-tg-text mb-2">
                                 From
                             </label>
-                            <input
-                                {...register('from', { required: 'From location is required' })}
-                                type="text"
-                                placeholder="Enter pickup location"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
+                            <CitySelector
+                                value={watch('from') || ''}
+                                onChange={(value) => setValue('from', value, { shouldValidate: true })}
+                                placeholder="Select pickup city"
+                                error={errors.from?.message}
                             />
-                            {errors.from && (
-                                <p className="mt-1 text-sm text-red-600">{errors.from.message}</p>
-                            )}
                         </div>
 
                         <div>
                             <label className="block text-sm font-medium text-tg-text mb-2">
                                 To
                             </label>
-                            <input
-                                {...register('to', { required: 'Destination is required' })}
-                                type="text"
-                                placeholder="Enter destination"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
+                            <CitySelector
+                                value={watch('to') || ''}
+                                onChange={(value) => setValue('to', value, { shouldValidate: true })}
+                                placeholder="Select destination city"
+                                error={errors.to?.message}
                             />
-                            {errors.to && (
-                                <p className="mt-1 text-sm text-red-600">{errors.to.message}</p>
-                            )}
                         </div>
                     </div>
 

@@ -3,6 +3,7 @@
 import { useStore } from '@/store/useStore'
 import { useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
+import { CitySelector } from './CitySelector'
 
 interface DriverForm {
     priorityDirections: Array<{ from: string; to: string }>
@@ -18,7 +19,9 @@ export function DriverRegistrationScreen() {
         register,
         control,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
+        watch,
+        setValue
     } = useForm<DriverForm>({
         defaultValues: {
             priorityDirections: [],
@@ -144,18 +147,24 @@ export function DriverRegistrationScreen() {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <input
-                                        {...register(`priorityDirections.${index}.from` as const)}
-                                        type="text"
-                                        placeholder="From"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                    />
-                                    <input
-                                        {...register(`priorityDirections.${index}.to` as const)}
-                                        type="text"
-                                        placeholder="To"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                    />
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">From</label>
+                                        <CitySelector
+                                            value={watch(`priorityDirections.${index}.from`) || ''}
+                                            onChange={(value) => setValue(`priorityDirections.${index}.from`, value)}
+                                            placeholder="Select from city"
+                                            className="text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">To</label>
+                                        <CitySelector
+                                            value={watch(`priorityDirections.${index}.to`) || ''}
+                                            onChange={(value) => setValue(`priorityDirections.${index}.to`, value)}
+                                            placeholder="Select to city"
+                                            className="text-sm"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -188,18 +197,24 @@ export function DriverRegistrationScreen() {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <input
-                                        {...register(`excludedDirections.${index}.from` as const)}
-                                        type="text"
-                                        placeholder="From"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                    />
-                                    <input
-                                        {...register(`excludedDirections.${index}.to` as const)}
-                                        type="text"
-                                        placeholder="To"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-tg-button focus:border-transparent"
-                                    />
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">From</label>
+                                        <CitySelector
+                                            value={watch(`excludedDirections.${index}.from`) || ''}
+                                            onChange={(value) => setValue(`excludedDirections.${index}.from`, value)}
+                                            placeholder="Select from city"
+                                            className="text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs text-gray-600 mb-1">To</label>
+                                        <CitySelector
+                                            value={watch(`excludedDirections.${index}.to`) || ''}
+                                            onChange={(value) => setValue(`excludedDirections.${index}.to`, value)}
+                                            placeholder="Select to city"
+                                            className="text-sm"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         ))}
