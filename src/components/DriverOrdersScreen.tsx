@@ -223,21 +223,22 @@ export function DriverOrdersScreen() {
                                                 if (window.Telegram?.WebApp?.HapticFeedback) {
                                                     window.Telegram.WebApp.HapticFeedback.impactOccurred('medium')
                                                 }
-                                                // TODO: Implement bid functionality
+                                                // TODO: Implement accept functionality
                                             }}
                                         >
-                                            Place Bid
+                                            Accept
                                         </Button>
                                         <Button
-                                            variant="outline"
+                                            variant="destructive"
+                                            className="flex-1"
                                             onClick={() => {
                                                 if (window.Telegram?.WebApp?.HapticFeedback) {
                                                     window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
                                                 }
-                                                // TODO: Implement view details functionality
+                                                // TODO: Implement reject functionality
                                             }}
                                         >
-                                            Details
+                                            Reject
                                         </Button>
                                     </div>
                                 </CardContent>
