@@ -40,6 +40,7 @@ interface AppState {
     drivers: Driver[]
     bids: Bid[]
     currentUser: any
+    isDebugMode: boolean
 
     // Actions
     setScreen: (screen: AppState['currentScreen']) => void
@@ -49,6 +50,7 @@ interface AppState {
     addBid: (bid: Omit<Bid, 'id' | 'createdAt'>) => void
     setCurrentUser: (user: any) => void
     getDriverByUserId: (userId: string) => Driver | undefined
+    setDebugMode: (isDebug: boolean) => void
 }
 
 // Sample orders for testing
@@ -102,9 +104,11 @@ export const useStore = create<AppState>((set, get) => ({
     drivers: [],
     bids: [],
     currentUser: null,
+    isDebugMode: false,
 
     setScreen: (screen) => set({ currentScreen: screen }),
     setUserType: (type) => set({ userType: type }),
+    setDebugMode: (isDebug) => set({ isDebugMode: isDebug }),
 
     addOrder: (orderData) => {
         const order: Order = {

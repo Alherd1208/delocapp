@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 
 export function StartScreen() {
-    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId } = useStore()
+    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, setDebugMode } = useStore()
 
     useEffect(() => {
         // Get Telegram user data
@@ -24,6 +24,8 @@ export function StartScreen() {
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
+
+        setDebugMode(false) // Reset debug mode for normal navigation
 
         if (isDriver) {
             setUserType('driver')
@@ -47,6 +49,7 @@ export function StartScreen() {
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
+        setDebugMode(true)
         setScreen('driver-orders')
     }
 
