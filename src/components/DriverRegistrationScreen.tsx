@@ -21,8 +21,8 @@ export function DriverRegistrationScreen() {
         formState: { errors }
     } = useForm<DriverForm>({
         defaultValues: {
-            priorityDirections: [{ from: '', to: '' }],
-            excludedDirections: [{ from: '', to: '' }],
+            priorityDirections: [],
+            excludedDirections: [],
             cargoVolumes: [{ length: 0, width: 0, height: 0 }]
         }
     })
@@ -134,15 +134,13 @@ export function DriverRegistrationScreen() {
                             <div key={field.id} className="space-y-3 p-4 bg-gray-50 rounded-lg">
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm font-medium text-gray-600">Direction #{index + 1}</span>
-                                    {priorityFields.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removePriority(index)}
-                                            className="text-red-500 text-sm"
-                                        >
-                                            Remove
-                                        </button>
-                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removePriority(index)}
+                                        className="text-red-500 text-sm"
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
@@ -180,15 +178,13 @@ export function DriverRegistrationScreen() {
                             <div key={field.id} className="space-y-3 p-4 bg-red-50 rounded-lg">
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm font-medium text-red-600">Excluded #{index + 1}</span>
-                                    {excludedFields.length > 1 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeExcluded(index)}
-                                            className="text-red-500 text-sm"
-                                        >
-                                            Remove
-                                        </button>
-                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeExcluded(index)}
+                                        className="text-red-500 text-sm"
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
