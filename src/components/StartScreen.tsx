@@ -202,6 +202,29 @@ export function StartScreen() {
                     <div>User: {currentUser ? `${currentUser.first_name} (ID: ${currentUser.id})` : 'Not authenticated'}</div>
                     <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
                     <div>Debug Mode: {isDebugMode ? 'Yes' : 'No'}</div>
+                    
+                    {/* Manual user detection test */}
+                    <div className="mt-2">
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                                console.log('=== MANUAL USER DETECTION TEST ===');
+                                console.log('Current user from store:', currentUser);
+                                if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                                    const telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
+                                    console.log('Telegram user:', telegramUser);
+                                    setCurrentUser(telegramUser);
+                                    console.log('User set to:', telegramUser);
+                                } else {
+                                    console.log('No Telegram user data available');
+                                }
+                                console.log('=== END MANUAL TEST ===');
+                            }}
+                        >
+                            Test User Detection
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Debug Profile Button (for non-Telegram environments) */}

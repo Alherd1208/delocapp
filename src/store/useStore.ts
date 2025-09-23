@@ -155,6 +155,12 @@ export const useStore = create<AppState>((set, get) => ({
     },
 
     addDriver: async (driverData) => {
+        console.log('=== STORE addDriver DEBUG ===');
+        console.log('Driver data being sent to API:', driverData);
+        console.log('Driver userId:', driverData.userId);
+        console.log('Driver userId type:', typeof driverData.userId);
+        console.log('=== END STORE addDriver DEBUG ===');
+        
         try {
             const response = await fetch('/api/drivers', {
                 method: 'POST',

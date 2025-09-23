@@ -107,6 +107,12 @@ export class DatabaseService {
 
     // Driver operations
     async createDriver(driverData: Omit<Driver, 'id' | 'createdAt'>): Promise<Driver> {
+        console.log('=== DATABASE SERVICE DEBUG ===');
+        console.log('Received driver data:', driverData);
+        console.log('Driver userId:', driverData.userId);
+        console.log('Driver userId type:', typeof driverData.userId);
+        console.log('=== END DATABASE SERVICE DEBUG ===');
+        
         const collection = await this.getDriversCollection();
         const now = new Date();
 
