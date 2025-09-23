@@ -20,6 +20,16 @@ export function StartScreen() {
         setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`])
     }
 
+    // Function to format console arguments properly
+    const formatConsoleArgs = (args: any[]): string => {
+        return args.map(arg => {
+            if (typeof arg === 'object' && arg !== null) {
+                return JSON.stringify(arg, null, 2)
+            }
+            return String(arg)
+        }).join(' ')
+    }
+
     // Override console.log to capture logs
     useEffect(() => {
         if (showDebugPanel) {
@@ -29,15 +39,15 @@ export function StartScreen() {
 
             console.log = (...args) => {
                 originalLog(...args)
-                addDebugLog(`LOG: ${args.join(' ')}`)
+                addDebugLog(`LOG: ${formatConsoleArgs(args)}`)
             }
             console.warn = (...args) => {
                 originalWarn(...args)
-                addDebugLog(`WARN: ${args.join(' ')}`)
+                addDebugLog(`WARN: ${formatConsoleArgs(args)}`)
             }
             console.error = (...args) => {
                 originalError(...args)
-                addDebugLog(`ERROR: ${args.join(' ')}`)
+                addDebugLog(`ERROR: ${formatConsoleArgs(args)}`)
             }
 
             return () => {
@@ -286,14 +296,14 @@ export function StartScreen() {
 
                 {/* Debug Panel */}
                 {showDebugPanel && (
-                    <div className="p-3 bg-black/90 text-green-400 rounded-lg text-xs font-mono max-h-64 overflow-y-auto">
+                    <div className="p-3 bg-black/90 text-green-400 rounded-lg text-xs font-mono max-h-80 overflow-y-auto">
                         <div className="font-semibold mb-2 text-white">🐛 Debug Console:</div>
                         {debugLogs.length === 0 ? (
                             <div className="text-gray-400">No logs yet. Try the "Test User Detection" button or register as a driver.</div>
                         ) : (
                             <div className="space-y-1">
                                 {debugLogs.map((log, index) => (
-                                    <div key={index} className="break-words">
+                                    <div key={index} className="break-words whitespace-pre-wrap">
                                         {log}
                                     </div>
                                 ))}
