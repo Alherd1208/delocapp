@@ -161,7 +161,7 @@ export function CreateOrderScreen() {
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="length">Length (m)</Label>
+                                    <Label htmlFor="length" className="text-sm font-medium text-center block">Length (m)</Label>
                                     <Input
                                         {...register('length', {
                                             required: 'Length is required',
@@ -170,15 +170,15 @@ export function CreateOrderScreen() {
                                         type="number"
                                         step="0.1"
                                         placeholder="0.0"
-                                        className={errors.length ? "border-destructive" : ""}
+                                        className={`text-center ${errors.length ? "border-destructive" : ""}`}
                                     />
                                     {errors.length && (
-                                        <p className="text-sm text-destructive">{errors.length.message}</p>
+                                        <p className="text-sm text-destructive text-center">{errors.length.message}</p>
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="width">Width (m)</Label>
+                                    <Label htmlFor="width" className="text-sm font-medium text-center block">Width (m)</Label>
                                     <Input
                                         {...register('width', {
                                             required: 'Width is required',
@@ -187,15 +187,15 @@ export function CreateOrderScreen() {
                                         type="number"
                                         step="0.1"
                                         placeholder="0.0"
-                                        className={errors.width ? "border-destructive" : ""}
+                                        className={`text-center ${errors.width ? "border-destructive" : ""}`}
                                     />
                                     {errors.width && (
-                                        <p className="text-sm text-destructive">{errors.width.message}</p>
+                                        <p className="text-sm text-destructive text-center">{errors.width.message}</p>
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="height">Height (m)</Label>
+                                    <Label htmlFor="height" className="text-sm font-medium text-center block">Height (m)</Label>
                                     <Input
                                         {...register('height', {
                                             required: 'Height is required',
@@ -204,10 +204,10 @@ export function CreateOrderScreen() {
                                         type="number"
                                         step="0.1"
                                         placeholder="0.0"
-                                        className={errors.height ? "border-destructive" : ""}
+                                        className={`text-center ${errors.height ? "border-destructive" : ""}`}
                                     />
                                     {errors.height && (
-                                        <p className="text-sm text-destructive">{errors.height.message}</p>
+                                        <p className="text-sm text-destructive text-center">{errors.height.message}</p>
                                     )}
                                 </div>
                             </div>

@@ -266,31 +266,34 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                     {cargoVolumes.map((volume, index) => (
                         <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
                             <div className="flex-1 grid grid-cols-3 gap-2">
-                                <div>
-                                    <Label className="text-xs">Length (cm)</Label>
+                                <div className="space-y-1">
+                                    <Label className="text-xs font-medium text-center block">Length (cm)</Label>
                                     <Input
                                         type="number"
                                         value={volume.length}
                                         onChange={(e) => updateCargoVolume(index, 'length', parseInt(e.target.value) || 0)}
                                         min="0"
+                                        className="text-center"
                                     />
                                 </div>
-                                <div>
-                                    <Label className="text-xs">Width (cm)</Label>
+                                <div className="space-y-1">
+                                    <Label className="text-xs font-medium text-center block">Width (cm)</Label>
                                     <Input
                                         type="number"
                                         value={volume.width}
                                         onChange={(e) => updateCargoVolume(index, 'width', parseInt(e.target.value) || 0)}
                                         min="0"
+                                        className="text-center"
                                     />
                                 </div>
-                                <div>
-                                    <Label className="text-xs">Height (cm)</Label>
+                                <div className="space-y-1">
+                                    <Label className="text-xs font-medium text-center block">Height (cm)</Label>
                                     <Input
                                         type="number"
                                         value={volume.height}
                                         onChange={(e) => updateCargoVolume(index, 'height', parseInt(e.target.value) || 0)}
                                         min="0"
+                                        className="text-center"
                                     />
                                 </div>
                             </div>

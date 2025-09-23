@@ -334,7 +334,7 @@ export function DriverRegistrationScreen() {
 
                                         <div className="grid grid-cols-3 gap-4">
                                             <div className="space-y-2">
-                                                <Label>Length (m)</Label>
+                                                <Label className="text-sm font-medium text-center block">Length (m)</Label>
                                                 <Input
                                                     {...register(`cargoVolumes.${index}.length` as const, {
                                                         min: { value: 0.1, message: 'Min 0.1m' }
@@ -342,11 +342,12 @@ export function DriverRegistrationScreen() {
                                                     type="number"
                                                     step="0.1"
                                                     placeholder="0.0"
+                                                    className="text-center"
                                                 />
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label>Width (m)</Label>
+                                                <Label className="text-sm font-medium text-center block">Width (m)</Label>
                                                 <Input
                                                     {...register(`cargoVolumes.${index}.width` as const, {
                                                         min: { value: 0.1, message: 'Min 0.1m' }
@@ -354,11 +355,12 @@ export function DriverRegistrationScreen() {
                                                     type="number"
                                                     step="0.1"
                                                     placeholder="0.0"
+                                                    className="text-center"
                                                 />
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label>Height (m)</Label>
+                                                <Label className="text-sm font-medium text-center block">Height (m)</Label>
                                                 <Input
                                                     {...register(`cargoVolumes.${index}.height` as const, {
                                                         min: { value: 0.1, message: 'Min 0.1m' }
@@ -366,6 +368,7 @@ export function DriverRegistrationScreen() {
                                                     type="number"
                                                     step="0.1"
                                                     placeholder="0.0"
+                                                    className="text-center"
                                                 />
                                             </div>
                                         </div>
