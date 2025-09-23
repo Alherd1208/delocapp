@@ -110,3 +110,4 @@ export function bidDocumentToBid(doc: BidDocument): Bid {
     };
 }
 
+

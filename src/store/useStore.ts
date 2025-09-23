@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { Order, Driver, Bid } from '../lib/models'
 
 interface AppState {
-    currentScreen: 'start' | 'create-order' | 'driver-registration' | 'driver-orders' | 'orders' | 'bids'
+    currentScreen: 'start' | 'create-order' | 'driver-registration' | 'driver-orders' | 'orders' | 'bids' | 'profile'
     userType: 'customer' | 'driver' | null
     orders: Order[]
     drivers: Driver[]
@@ -24,6 +24,9 @@ interface AppState {
     loadOrders: () => Promise<void>
     loadDrivers: () => Promise<void>
     loadBids: () => Promise<void>
+    updateCurrentUser: (userData: any) => void
+    getUserOrders: () => Order[]
+    getUserAcceptedOrders: () => Order[]
 }
 
 // Sample orders for testing
@@ -240,5 +243,24 @@ export const useStore = create<AppState>((set, get) => ({
         } catch (error) {
             console.error('Failed to update order chat ID:', error);
         }
+    },
+
+    updateCurrentUser: (userData) => set({ currentUser: userData }),
+
+    getUserOrders: () => {
+        const state = get()
+        const userId = state.currentUser?.id?.toString() || 'anonymous'
+        return state.orders.filter(order => order.createdBy === userId)
+    },
+
+    getUserAcceptedOrders: () => {
+        const state = get()
+        const userId = state.currentUser?.id?.toString()
+        if (!userId) return []
+
+        const driver = state.drivers.find(driver => driver.userId === userId)
+        if (!driver) return []
+
+        return state.orders.filter(order => order.assignedDriver === driver.id)
     },
 }))

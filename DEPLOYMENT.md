@@ -73,3 +73,4 @@ npm run dev
 - The MongoDB connection is essential for the app's functionality
 - All API routes (`/api/*`) need server-side execution
 
+

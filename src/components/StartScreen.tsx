@@ -2,7 +2,7 @@
 
 import { useStore } from '@/store/useStore'
 import { useEffect } from 'react'
-import { Truck, Package, Zap, Bug } from 'lucide-react'
+import { Truck, Package, Zap, Bug, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -53,6 +53,13 @@ export function StartScreen() {
         setScreen('driver-orders')
     }
 
+    const handleProfileClick = () => {
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
+        }
+        setScreen('profile')
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex flex-col items-center justify-center p-6">
             <div className="w-full max-w-lg mx-auto space-y-8">
@@ -75,6 +82,20 @@ export function StartScreen() {
                         </p>
                     </div>
                 </div>
+
+                {/* Profile Button */}
+                {currentUser && (
+                    <div className="text-center">
+                        <Button
+                            variant="outline"
+                            onClick={handleProfileClick}
+                            className="flex items-center gap-2"
+                        >
+                            <User className="w-4 h-4" />
+                            Profile
+                        </Button>
+                    </div>
+                )}
 
                 {/* Role Selection */}
                 <div className="space-y-4">

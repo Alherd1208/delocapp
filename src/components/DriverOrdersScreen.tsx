@@ -1,7 +1,7 @@
 'use client'
 
 import { useStore } from '@/store/useStore'
-import { ArrowLeft, Package, MapPin, DollarSign, Clock, Star, Bug } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, DollarSign, Clock, Star, Bug, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -22,6 +22,13 @@ export function DriverOrdersScreen() {
         }
         setDebugMode(false) // Reset debug mode when going back
         setScreen('start')
+    }
+
+    const goToProfile = () => {
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
+        }
+        setScreen('profile')
     }
 
     // Function to check if an order matches driver's priority directions
@@ -249,6 +256,14 @@ export function DriverOrdersScreen() {
                             {sortedOrders.length} orders available
                         </p>
                     </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={goToProfile}
+                        className="text-primary-foreground hover:bg-primary-foreground/20"
+                    >
+                        <User className="h-5 w-5" />
+                    </Button>
                 </div>
             </div>
 
@@ -270,7 +285,7 @@ export function DriverOrdersScreen() {
 
                         return (
                             <Card key={order.id} className={`transition-all hover:shadow-md ${isAssigned ? 'border-green-500 bg-green-50/50' :
-                                    isPriority ? 'border-yellow-500 bg-yellow-50/50' : ''
+                                isPriority ? 'border-yellow-500 bg-yellow-50/50' : ''
                                 }`}>
                                 <CardHeader className="pb-3">
                                     <div className="flex items-start justify-between">
