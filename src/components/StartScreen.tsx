@@ -22,19 +22,36 @@ export function StartScreen() {
 
         // Function to check and set Telegram user
         const checkAndSetUser = () => {
+            console.log('=== TELEGRAM USER DEBUG ===')
+            console.log('window.Telegram exists:', !!window.Telegram)
+            console.log('window.Telegram.WebApp exists:', !!window.Telegram?.WebApp)
+            
             if (window.Telegram?.WebApp) {
+                console.log('Telegram WebApp version:', window.Telegram.WebApp.version)
+                console.log('Telegram WebApp platform:', window.Telegram.WebApp.platform)
+                console.log('Telegram WebApp initData:', window.Telegram.WebApp.initData)
+                console.log('Telegram WebApp initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
+                
                 const user = window.Telegram.WebApp.initDataUnsafe.user
                 console.log('Telegram user data:', user)
-                console.log('Telegram initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
-
+                console.log('User ID:', user?.id)
+                console.log('User first_name:', user?.first_name)
+                console.log('User last_name:', user?.last_name)
+                console.log('User username:', user?.username)
+                
                 if (user && user.id) {
-                    console.log('Setting current user:', user)
+                    console.log('✅ Valid user data found, setting current user:', user)
                     setCurrentUser(user)
                     return true
                 } else {
-                    console.warn('No valid user data found in Telegram WebApp')
+                    console.warn('❌ No valid user data found in Telegram WebApp')
+                    console.warn('User object:', user)
+                    console.warn('User ID type:', typeof user?.id)
                 }
+            } else {
+                console.warn('❌ Telegram WebApp not available')
             }
+            console.log('=== END TELEGRAM USER DEBUG ===')
             return false
         }
 
@@ -81,7 +98,20 @@ export function StartScreen() {
             setUserType('driver')
 
             // Check if user is authenticated
-            if (!currentUser || !currentUser.id) {
+            let userId = currentUser?.id
+            
+            // If no user in store, try to get from Telegram directly
+            if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                console.log('No user in store, trying to get from Telegram directly in StartScreen')
+                const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
+                if (telegramUser && telegramUser.id) {
+                    console.log('Found user in Telegram, updating store:', telegramUser)
+                    setCurrentUser(telegramUser)
+                    userId = telegramUser.id
+                }
+            }
+            
+            if (!userId) {
                 console.error('No authenticated user for driver registration')
                 if (window.Telegram?.WebApp?.showAlert) {
                     window.Telegram.WebApp.showAlert('Authentication required. Please ensure you are logged in through Telegram.')
@@ -93,8 +123,7 @@ export function StartScreen() {
             }
 
             // Check if driver is already registered
-            const userId = currentUser.id.toString()
-            const existingDriver = getDriverByUserId(userId)
+            const existingDriver = getDriverByUserId(userId.toString())
             if (existingDriver) {
                 // Driver already registered, go to orders screen
                 setScreen('driver-orders')
@@ -168,6 +197,14 @@ export function StartScreen() {
                         </Button>
                     </div>
                 )}
+
+                {/* Debug info */}
+                <div className="p-3 bg-muted/50 rounded-lg text-xs text-left border">
+                    <div className="font-semibold mb-2">🔍 Debug Info:</div>
+                    <div>User: {currentUser ? `${currentUser.first_name} (ID: ${currentUser.id})` : 'Not authenticated'}</div>
+                    <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
+                    <div>Debug Mode: {isDebugMode ? 'Yes' : 'No'}</div>
+                </div>
 
                 {/* Debug Profile Button (for non-Telegram environments) */}
                 {isClient && !currentUser && isDebugMode && (

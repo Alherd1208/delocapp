@@ -19,7 +19,7 @@ interface DriverForm {
 }
 
 export function DriverRegistrationScreen() {
-    const { addDriver, setScreen, currentUser } = useStore()
+    const { addDriver, setScreen, currentUser, setCurrentUser } = useStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const {
@@ -72,8 +72,36 @@ export function DriverRegistrationScreen() {
         }
 
         try {
+            // Debug current user state
+            console.log('=== DRIVER REGISTRATION DEBUG ===')
+            console.log('Current user from store:', currentUser)
+            console.log('Current user type:', typeof currentUser)
+            console.log('Current user ID:', currentUser?.id)
+            console.log('Current user ID type:', typeof currentUser?.id)
+            console.log('Window Telegram available:', !!window.Telegram)
+            console.log('Window Telegram WebApp available:', !!window.Telegram?.WebApp)
+            
+            if (window.Telegram?.WebApp) {
+                console.log('Telegram initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
+                console.log('Telegram user from initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe.user)
+            }
+            console.log('=== END DRIVER REGISTRATION DEBUG ===')
+
             // Validate user authentication
-            if (!currentUser || !currentUser.id) {
+            let userId = currentUser?.id
+            
+            // If no user in store, try to get from Telegram directly
+            if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                console.log('No user in store, trying to get from Telegram directly')
+                const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
+                if (telegramUser && telegramUser.id) {
+                    console.log('Found user in Telegram, updating store:', telegramUser)
+                    setCurrentUser(telegramUser)
+                    userId = telegramUser.id
+                }
+            }
+            
+            if (!userId) {
                 console.error('No authenticated user for driver registration')
                 console.error('Current user:', currentUser)
                 throw new Error('Authentication required. Please ensure you are logged in through Telegram.')
@@ -84,10 +112,10 @@ export function DriverRegistrationScreen() {
             const excludedDirections = data.excludedDirections.filter(d => d.from && d.to)
             const cargoVolumes = data.cargoVolumes.filter(v => v.length > 0 && v.width > 0 && v.height > 0)
 
-            console.log('Creating driver with userId:', currentUser.id.toString())
+            console.log('Creating driver with userId:', userId.toString())
 
             addDriver({
-                userId: currentUser.id.toString(),
+                userId: userId.toString(),
                 priorityDirections,
                 excludedDirections,
                 cargoVolumes
