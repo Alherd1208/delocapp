@@ -27,8 +27,6 @@ export function StartScreen() {
             console.log('window.Telegram.WebApp exists:', !!window.Telegram?.WebApp)
             
             if (window.Telegram?.WebApp) {
-                console.log('Telegram WebApp version:', window.Telegram.WebApp.version)
-                console.log('Telegram WebApp platform:', window.Telegram.WebApp.platform)
                 console.log('Telegram WebApp initData:', window.Telegram.WebApp.initData)
                 console.log('Telegram WebApp initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
                 
