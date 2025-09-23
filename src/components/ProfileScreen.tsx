@@ -30,8 +30,8 @@ export function ProfileScreen() {
         username: currentUser?.username || ''
     })
 
-    // Check if we're in debug mode (not in Telegram environment)
-    const isDebugMode = typeof window !== 'undefined' && !window.Telegram?.WebApp
+    const [isClient, setIsClient] = useState(false)
+    const [isDebugMode, setIsDebugMode] = useState(false)
     const [debugUser, setDebugUser] = useState({
         id: 12345,
         first_name: 'Debug',
@@ -41,14 +41,20 @@ export function ProfileScreen() {
 
     // Load data when component mounts
     useEffect(() => {
+        setIsClient(true)
+
+        // Check if we're in debug mode (not in Telegram environment)
+        const debugMode = !window.Telegram?.WebApp
+        setIsDebugMode(debugMode)
+
         loadOrders()
         loadDrivers()
 
         // If in debug mode and no current user, set debug user
-        if (isDebugMode && !currentUser) {
+        if (debugMode && !currentUser) {
             updateCurrentUser(debugUser)
         }
-    }, [loadOrders, loadDrivers, isDebugMode, currentUser, updateCurrentUser, debugUser])
+    }, [loadOrders, loadDrivers, currentUser, updateCurrentUser, debugUser])
 
     const userOrders = getUserOrders()
     const acceptedOrders = getUserAcceptedOrders()
@@ -236,7 +242,7 @@ export function ProfileScreen() {
             </Card>
 
             {/* Debug Controls (only in debug mode) */}
-            {isDebugMode && (
+            {isClient && isDebugMode && (
                 <Card className="mb-6 bg-orange-50 border-orange-200">
                     <CardHeader>
                         <div className="flex items-center space-x-2">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useStore } from '@/store/useStore'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Truck, Package, Zap, Bug, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,10 +9,18 @@ import { Badge } from '@/components/ui/badge'
 
 export function StartScreen() {
     const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, setDebugMode } = useStore()
+    const [isClient, setIsClient] = useState(false)
+    const [isDebugMode, setIsDebugMode] = useState(false)
 
     useEffect(() => {
+        setIsClient(true)
+
+        // Check if we're in debug mode (not in Telegram environment)
+        const debugMode = !window.Telegram?.WebApp
+        setIsDebugMode(debugMode)
+
         // Get Telegram user data
-        if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        if (window.Telegram?.WebApp) {
             const user = window.Telegram.WebApp.initDataUnsafe.user
             if (user) {
                 setCurrentUser(user)
@@ -78,7 +86,7 @@ export function StartScreen() {
                             <h1 className="text-3xl font-bold tracking-tight">
                                 CryptoLoc Delivery
                             </h1>
-                            {typeof window !== 'undefined' && !window.Telegram?.WebApp && (
+                            {isClient && isDebugMode && (
                                 <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
                                     <Bug className="w-3 h-3 mr-1" />
                                     Debug Mode
@@ -106,7 +114,7 @@ export function StartScreen() {
                 )}
 
                 {/* Debug Profile Button (for non-Telegram environments) */}
-                {!currentUser && typeof window !== 'undefined' && !window.Telegram?.WebApp && (
+                {isClient && !currentUser && isDebugMode && (
                     <div className="text-center">
                         <Button
                             variant="outline"
