@@ -11,6 +11,42 @@ export function StartScreen() {
     const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, setDebugMode } = useStore()
     const [isClient, setIsClient] = useState(false)
     const [isDebugMode, setIsDebugMode] = useState(false)
+    const [showDebugPanel, setShowDebugPanel] = useState(false)
+    const [debugLogs, setDebugLogs] = useState<string[]>([])
+
+    // Function to add logs to debug panel
+    const addDebugLog = (message: string) => {
+        const timestamp = new Date().toLocaleTimeString()
+        setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`])
+    }
+
+    // Override console.log to capture logs
+    useEffect(() => {
+        if (showDebugPanel) {
+            const originalLog = console.log
+            const originalWarn = console.warn
+            const originalError = console.error
+
+            console.log = (...args) => {
+                originalLog(...args)
+                addDebugLog(`LOG: ${args.join(' ')}`)
+            }
+            console.warn = (...args) => {
+                originalWarn(...args)
+                addDebugLog(`WARN: ${args.join(' ')}`)
+            }
+            console.error = (...args) => {
+                originalError(...args)
+                addDebugLog(`ERROR: ${args.join(' ')}`)
+            }
+
+            return () => {
+                console.log = originalLog
+                console.warn = originalWarn
+                console.error = originalError
+            }
+        }
+    }, [showDebugPanel])
 
     useEffect(() => {
         setIsClient(true)
@@ -203,29 +239,68 @@ export function StartScreen() {
                     <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
                     <div>Debug Mode: {isDebugMode ? 'Yes' : 'No'}</div>
                     
-                    {/* Manual user detection test */}
-                    <div className="mt-2">
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                                console.log('=== MANUAL USER DETECTION TEST ===');
-                                console.log('Current user from store:', currentUser);
-                                if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-                                    const telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
-                                    console.log('Telegram user:', telegramUser);
-                                    setCurrentUser(telegramUser);
-                                    console.log('User set to:', telegramUser);
-                                } else {
-                                    console.log('No Telegram user data available');
-                                }
-                                console.log('=== END MANUAL TEST ===');
-                            }}
-                        >
-                            Test User Detection
-                        </Button>
+                    {/* Debug controls */}
+                    <div className="mt-2 space-y-2">
+                        <div className="flex gap-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setShowDebugPanel(!showDebugPanel)}
+                            >
+                                {showDebugPanel ? 'Hide' : 'Show'} Debug Panel
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                    console.log('=== MANUAL USER DETECTION TEST ===');
+                                    console.log('Current user from store:', currentUser);
+                                    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+                                        const telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
+                                        console.log('Telegram user:', telegramUser);
+                                        setCurrentUser(telegramUser);
+                                        console.log('User set to:', telegramUser);
+                                    } else {
+                                        console.log('No Telegram user data available');
+                                    }
+                                    console.log('=== END MANUAL TEST ===');
+                                }}
+                            >
+                                Test User Detection
+                            </Button>
+                        </div>
+                        
+                        {showDebugPanel && (
+                            <div className="mt-2">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setDebugLogs([])}
+                                >
+                                    Clear Logs
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {/* Debug Panel */}
+                {showDebugPanel && (
+                    <div className="p-3 bg-black/90 text-green-400 rounded-lg text-xs font-mono max-h-64 overflow-y-auto">
+                        <div className="font-semibold mb-2 text-white">🐛 Debug Console:</div>
+                        {debugLogs.length === 0 ? (
+                            <div className="text-gray-400">No logs yet. Try the "Test User Detection" button or register as a driver.</div>
+                        ) : (
+                            <div className="space-y-1">
+                                {debugLogs.map((log, index) => (
+                                    <div key={index} className="break-words">
+                                        {log}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Debug Profile Button (for non-Telegram environments) */}
                 {isClient && !currentUser && isDebugMode && (

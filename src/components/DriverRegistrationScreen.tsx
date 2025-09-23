@@ -1,7 +1,7 @@
 'use client'
 
 import { useStore } from '@/store/useStore'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { ArrowLeft, Plus, Minus, Truck, AlertTriangle, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,42 @@ interface DriverForm {
 export function DriverRegistrationScreen() {
     const { addDriver, setScreen, currentUser, setCurrentUser } = useStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [showDebugPanel, setShowDebugPanel] = useState(false)
+    const [debugLogs, setDebugLogs] = useState<string[]>([])
+
+    // Function to add logs to debug panel
+    const addDebugLog = (message: string) => {
+        const timestamp = new Date().toLocaleTimeString()
+        setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`])
+    }
+
+    // Override console.log to capture logs
+    useEffect(() => {
+        if (showDebugPanel) {
+            const originalLog = console.log
+            const originalWarn = console.warn
+            const originalError = console.error
+
+            console.log = (...args) => {
+                originalLog(...args)
+                addDebugLog(`LOG: ${args.join(' ')}`)
+            }
+            console.warn = (...args) => {
+                originalWarn(...args)
+                addDebugLog(`WARN: ${args.join(' ')}`)
+            }
+            console.error = (...args) => {
+                originalError(...args)
+                addDebugLog(`ERROR: ${args.join(' ')}`)
+            }
+
+            return () => {
+                console.log = originalLog
+                console.warn = originalWarn
+                console.error = originalError
+            }
+        }
+    }, [showDebugPanel])
 
     const {
         register,
@@ -172,6 +208,53 @@ export function DriverRegistrationScreen() {
                         <p className="text-sm text-muted-foreground">Setup your delivery preferences</p>
                     </div>
                 </div>
+            </div>
+
+            {/* Debug Panel */}
+            <div className="px-6">
+                <div className="p-3 bg-muted/50 rounded-lg text-xs text-left border">
+                    <div className="font-semibold mb-2">🔍 Debug Info:</div>
+                    <div>User: {currentUser ? `${currentUser.first_name} (ID: ${currentUser.id})` : 'Not authenticated'}</div>
+                    <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
+                    
+                    <div className="mt-2 space-y-2">
+                        <div className="flex gap-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setShowDebugPanel(!showDebugPanel)}
+                            >
+                                {showDebugPanel ? 'Hide' : 'Show'} Debug Console
+                            </Button>
+                            {showDebugPanel && (
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setDebugLogs([])}
+                                >
+                                    Clear Logs
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {showDebugPanel && (
+                    <div className="mt-2 p-3 bg-black/90 text-green-400 rounded-lg text-xs font-mono max-h-64 overflow-y-auto">
+                        <div className="font-semibold mb-2 text-white">🐛 Debug Console:</div>
+                        {debugLogs.length === 0 ? (
+                            <div className="text-gray-400">No logs yet. Try submitting the form.</div>
+                        ) : (
+                            <div className="space-y-1">
+                                {debugLogs.map((log, index) => (
+                                    <div key={index} className="break-words">
+                                        {log}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className="p-6 space-y-6">
