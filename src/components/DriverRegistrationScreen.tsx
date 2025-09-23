@@ -341,6 +341,7 @@ export function DriverRegistrationScreen() {
                                                     placeholder="0.0"
                                                 />
                                             </div>
+
                                             <div className="space-y-2">
                                                 <Label>Width (m)</Label>
                                                 <Input
@@ -352,6 +353,7 @@ export function DriverRegistrationScreen() {
                                                     placeholder="0.0"
                                                 />
                                             </div>
+
                                             <div className="space-y-2">
                                                 <Label>Height (m)</Label>
                                                 <Input
