@@ -95,7 +95,7 @@ export function ProfileScreen() {
         setScreen('start')
     }
 
-    const handleDebugUserChange = (field: string, value: string) => {
+    const handleDebugUserChange = (field: string, value: string | number) => {
         const newDebugUser = { ...debugUser, [field]: value }
         setDebugUser(newDebugUser)
         updateCurrentUser(newDebugUser)
