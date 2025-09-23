@@ -41,10 +41,12 @@ export function ProfileScreen() {
 
     // Load data when component mounts
     useEffect(() => {
+        console.log('ProfileScreen mounted, currentUser:', currentUser)
         setIsClient(true)
 
         // Check if we're in debug mode (not in Telegram environment)
         const debugMode = typeof window === 'undefined' || !window.Telegram?.WebApp
+        console.log('ProfileScreen debugMode:', debugMode)
         setIsDebugMode(debugMode)
 
         loadOrders()
@@ -52,6 +54,7 @@ export function ProfileScreen() {
 
         // If in debug mode and no current user, set debug user
         if (debugMode && !currentUser) {
+            console.log('Setting debug user in ProfileScreen')
             updateCurrentUser(debugUser)
         }
     }, [loadOrders, loadDrivers, currentUser, updateCurrentUser, debugUser])
@@ -89,7 +92,8 @@ export function ProfileScreen() {
     }
 
     const goBack = () => {
-        if (window.Telegram?.WebApp?.HapticFeedback) {
+        console.log('ProfileScreen goBack clicked')
+        if (typeof window !== 'undefined' && window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
         setScreen('start')
@@ -121,15 +125,17 @@ export function ProfileScreen() {
         }
     }
 
+    console.log('ProfileScreen rendering, currentUser:', currentUser, 'isClient:', isClient)
+    
     return (
-        <div className="min-h-screen bg-[var(--tg-theme-bg-color)] text-[var(--tg-theme-text-color)] p-4">
+        <div className="min-h-screen bg-background text-foreground p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={goBack}
-                    className="text-[var(--tg-theme-link-color)]"
+                    className="text-primary"
                 >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back
@@ -139,7 +145,7 @@ export function ProfileScreen() {
             </div>
 
             {/* User Profile Card */}
-            <Card className="mb-6 bg-[var(--tg-theme-secondary-bg-color)] border-[var(--tg-theme-section-separator-color)]">
+            <Card className="mb-6 bg-card border-border">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <div className="flex items-center space-x-2">
                         <User className="w-5 h-5" />
@@ -150,7 +156,7 @@ export function ProfileScreen() {
                             variant="ghost"
                             size="sm"
                             onClick={() => setIsEditing(true)}
-                            className="text-[var(--tg-theme-link-color)]"
+                            className="text-primary"
                         >
                             <Edit className="w-4 h-4" />
                         </Button>
@@ -308,7 +314,7 @@ export function ProfileScreen() {
 
             {/* Driver Profile Info (if driver) */}
             {isDriver && driverProfile && (
-                <Card className="mb-6 bg-[var(--tg-theme-secondary-bg-color)] border-[var(--tg-theme-section-separator-color)]">
+                <Card className="mb-6 bg-card border-border">
                     <CardHeader>
                         <div className="flex items-center space-x-2">
                             <Truck className="w-5 h-5" />
@@ -349,7 +355,7 @@ export function ProfileScreen() {
             )}
 
             {/* Created Orders */}
-            <Card className="mb-6 bg-[var(--tg-theme-secondary-bg-color)] border-[var(--tg-theme-section-separator-color)]">
+            <Card className="mb-6 bg-card border-border">
                 <CardHeader>
                     <div className="flex items-center space-x-2">
                         <Package className="w-5 h-5" />
@@ -406,7 +412,7 @@ export function ProfileScreen() {
 
             {/* Accepted Orders (for drivers) */}
             {isDriver && (
-                <Card className="mb-6 bg-[var(--tg-theme-secondary-bg-color)] border-[var(--tg-theme-section-separator-color)]">
+                <Card className="mb-6 bg-card border-border">
                     <CardHeader>
                         <div className="flex items-center space-x-2">
                             <Truck className="w-5 h-5" />

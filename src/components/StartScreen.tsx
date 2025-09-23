@@ -105,6 +105,7 @@ export function StartScreen() {
     }
 
     const handleProfileClick = () => {
+        console.log('Profile button clicked, currentUser:', currentUser)
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
