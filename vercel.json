@@ -1,17 +1,11 @@
 {
     "version": 2,
-    "buildCommand": "npm run build",
-    "outputDirectory": ".next",
-    "installCommand": "npm ci",
     "framework": "nextjs",
+    "buildCommand": "npm run build",
+    "installCommand": "npm ci",
     "regions": [
         "iad1"
     ],
-    "functions": {
-        "src/app/api/**/*.ts": {
-            "runtime": "nodejs18.x"
-        }
-    },
     "env": {
         "MONGODB_URI": "mongodb+srv://alherdhavartsou:4312@cluster0.rpffwhq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
     }
