@@ -147,6 +147,22 @@ export class DatabaseService {
         return doc ? driverDocumentToDriver(doc) : null;
     }
 
+    async updateDriver(id: string, updates: Partial<Omit<Driver, 'id' | 'createdAt'>>): Promise<Driver | null> {
+        const collection = await this.getDriversCollection();
+        const updateDoc = {
+            ...updates,
+            updatedAt: new Date(),
+        };
+
+        const result = await collection.findOneAndUpdate(
+            { _id: new ObjectId(id) },
+            { $set: updateDoc },
+            { returnDocument: 'after' }
+        );
+
+        return result ? driverDocumentToDriver(result) : null;
+    }
+
     // Bid operations
     async createBid(bidData: Omit<Bid, 'id' | 'createdAt'>): Promise<Bid> {
         const collection = await this.getBidsCollection();

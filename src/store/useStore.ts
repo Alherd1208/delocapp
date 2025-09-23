@@ -34,6 +34,7 @@ interface AppState {
     loadDrivers: () => Promise<void>
     loadBids: () => Promise<void>
     updateCurrentUser: (userData: any) => void
+    updateDriver: (driverId: string, updates: Partial<Omit<Driver, 'id' | 'createdAt'>>) => Promise<void>
     getUserOrders: () => Order[]
     getUserAcceptedOrders: () => Order[]
 }
@@ -255,6 +256,31 @@ export const useStore = create<AppState>((set, get) => ({
     },
 
     updateCurrentUser: (userData) => set({ currentUser: userData }),
+
+    updateDriver: async (driverId, updates) => {
+        try {
+            const response = await fetch(`/api/drivers/${driverId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updates),
+            });
+
+            if (response.ok) {
+                const updatedDriver = await response.json();
+                set((state) => ({
+                    drivers: state.drivers.map(driver =>
+                        driver.id === driverId ? updatedDriver : driver
+                    )
+                }));
+            } else {
+                console.error('Failed to update driver');
+            }
+        } catch (error) {
+            console.error('Failed to update driver:', error);
+        }
+    },
 
     getUserOrders: () => {
         const state = get()
