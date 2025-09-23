@@ -17,6 +17,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
             script.onload = () => {
                 if (window.Telegram?.WebApp) {
+                    console.log('Telegram WebApp loaded successfully')
                     window.Telegram.WebApp.ready()
                     window.Telegram.WebApp.expand()
 
@@ -25,6 +26,10 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
                     if (colorScheme === 'dark') {
                         document.documentElement.setAttribute('data-theme', 'dark')
                     }
+
+                    // Log user data for debugging
+                    console.log('Telegram initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
+                    console.log('Telegram user:', window.Telegram.WebApp.initDataUnsafe.user)
                 }
             }
 

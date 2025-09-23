@@ -20,11 +20,27 @@ export function StartScreen() {
         setIsDebugMode(debugMode)
         setDebugMode(debugMode)
 
+        // Function to check and set Telegram user
+        const checkAndSetUser = () => {
+            if (window.Telegram?.WebApp) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user
+                console.log('Telegram user data:', user)
+                if (user) {
+                    setCurrentUser(user)
+                    return true
+                }
+            }
+            return false
+        }
+
         // Get Telegram user data
         if (window.Telegram?.WebApp) {
-            const user = window.Telegram.WebApp.initDataUnsafe.user
-            if (user) {
-                setCurrentUser(user)
+            console.log('Telegram WebApp detected')
+            if (!checkAndSetUser()) {
+                // Retry after a short delay if user data is not immediately available
+                setTimeout(() => {
+                    checkAndSetUser()
+                }, 500)
             }
         } else if (debugMode) {
             // Set debug user when not in Telegram environment
@@ -35,6 +51,17 @@ export function StartScreen() {
                 username: 'debug_user'
             }
             setCurrentUser(debugUser)
+        } else {
+            // Wait for Telegram WebApp to load if it's not available yet
+            const checkForTelegram = () => {
+                if (window.Telegram?.WebApp) {
+                    console.log('Telegram WebApp loaded later')
+                    checkAndSetUser()
+                } else {
+                    setTimeout(checkForTelegram, 100)
+                }
+            }
+            checkForTelegram()
         }
     }, [setCurrentUser, setDebugMode])
 
@@ -116,15 +143,15 @@ export function StartScreen() {
                 </div>
 
                 {/* Profile Button */}
-                {currentUser && (
+                {(currentUser || window.Telegram?.WebApp) && (
                     <div className="text-center space-y-2">
                         <Button
                             variant="outline"
                             onClick={handleProfileClick}
-                            className="flex items-center gap-2"
+                            className={`flex items-center gap-2 ${!currentUser ? 'border-dashed opacity-70' : ''}`}
                         >
                             <User className="w-4 h-4" />
-                            Profile
+                            {currentUser ? 'Profile' : 'Profile (Loading...)'}
                         </Button>
                     </div>
                 )}
