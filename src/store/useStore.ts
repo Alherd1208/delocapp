@@ -1,6 +1,15 @@
 import { create } from 'zustand'
 import { Order, Driver, Bid } from '../lib/models'
 
+// Utility function to safely get current user ID
+const getCurrentUserId = (currentUser: any): string => {
+    if (!currentUser?.id) {
+        console.warn('No authenticated user found, operations may not work correctly')
+        return 'anonymous'
+    }
+    return currentUser.id.toString()
+}
+
 interface AppState {
     currentScreen: 'start' | 'create-order' | 'driver-registration' | 'driver-orders' | 'orders' | 'bids' | 'profile'
     userType: 'customer' | 'driver' | null
@@ -249,14 +258,14 @@ export const useStore = create<AppState>((set, get) => ({
 
     getUserOrders: () => {
         const state = get()
-        const userId = state.currentUser?.id?.toString() || 'anonymous'
+        const userId = getCurrentUserId(state.currentUser)
         return state.orders.filter(order => order.createdBy === userId)
     },
 
     getUserAcceptedOrders: () => {
         const state = get()
-        const userId = state.currentUser?.id?.toString()
-        if (!userId) return []
+        const userId = getCurrentUserId(state.currentUser)
+        if (userId === 'anonymous') return []
 
         const driver = state.drivers.find(driver => driver.userId === userId)
         if (!driver) return []

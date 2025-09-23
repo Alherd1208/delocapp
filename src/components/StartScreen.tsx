@@ -18,6 +18,7 @@ export function StartScreen() {
         // Check if we're in debug mode (not in Telegram environment)
         const debugMode = !window.Telegram?.WebApp
         setIsDebugMode(debugMode)
+        setDebugMode(debugMode)
 
         // Get Telegram user data
         if (window.Telegram?.WebApp) {
@@ -25,8 +26,17 @@ export function StartScreen() {
             if (user) {
                 setCurrentUser(user)
             }
+        } else if (debugMode) {
+            // Set debug user when not in Telegram environment
+            const debugUser = {
+                id: 12345,
+                first_name: 'Debug',
+                last_name: 'User',
+                username: 'debug_user'
+            }
+            setCurrentUser(debugUser)
         }
-    }, [setCurrentUser])
+    }, [setCurrentUser, setDebugMode])
 
     const handleDriverChoice = (isDriver: boolean) => {
         if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -39,7 +49,13 @@ export function StartScreen() {
             setUserType('driver')
 
             // Check if driver is already registered
-            const existingDriver = getDriverByUserId(currentUser?.id?.toString() || 'anonymous')
+            const userId = currentUser?.id?.toString()
+            if (!userId) {
+                console.error('No user ID available for driver lookup')
+                setScreen('start')
+                return
+            }
+            const existingDriver = getDriverByUserId(userId)
             if (existingDriver) {
                 // Driver already registered, go to orders screen
                 setScreen('driver-orders')

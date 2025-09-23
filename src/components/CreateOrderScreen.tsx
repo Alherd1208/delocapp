@@ -60,7 +60,10 @@ export function CreateOrderScreen() {
                 },
                 paymentAmount: data.paymentAmount,
                 status: 'pending',
-                createdBy: currentUser?.id?.toString() || 'anonymous'
+                createdBy: currentUser?.id?.toString() || (() => {
+                    console.error('No authenticated user for order creation')
+                    throw new Error('Authentication required')
+                })()
             })
 
             // Show success feedback

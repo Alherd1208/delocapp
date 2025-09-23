@@ -14,7 +14,8 @@ export function DriverOrdersScreen() {
     const { setScreen, currentUser, getDriverByUserId, orders, isDebugMode, setDebugMode, acceptOrder } = useStore()
     const [acceptingOrders, setAcceptingOrders] = useState<Set<string>>(new Set())
 
-    const currentDriver = getDriverByUserId(currentUser?.id?.toString() || 'anonymous')
+    const userId = currentUser?.id?.toString()
+    const currentDriver = userId ? getDriverByUserId(userId) : null
 
     const goBack = () => {
         if (window.Telegram?.WebApp?.HapticFeedback) {

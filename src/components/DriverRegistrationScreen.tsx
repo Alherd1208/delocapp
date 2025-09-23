@@ -78,7 +78,10 @@ export function DriverRegistrationScreen() {
             const cargoVolumes = data.cargoVolumes.filter(v => v.length > 0 && v.width > 0 && v.height > 0)
 
             addDriver({
-                userId: currentUser?.id?.toString() || 'anonymous',
+                userId: currentUser?.id?.toString() || (() => {
+                    console.error('No authenticated user for driver registration')
+                    throw new Error('Authentication required')
+                })(),
                 priorityDirections,
                 excludedDirections,
                 cargoVolumes
