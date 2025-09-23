@@ -65,6 +65,12 @@ export function StartScreen() {
         const debugMode = typeof window === 'undefined' || !window.Telegram?.WebApp
         setIsDebugMode(debugMode)
         setDebugMode(debugMode)
+        
+        console.log('Debug mode detection:', {
+            hasWindow: typeof window !== 'undefined',
+            hasTelegram: !!window.Telegram?.WebApp,
+            debugMode
+        })
 
         // Function to check and set Telegram user
         const checkAndSetUser = () => {
@@ -99,9 +105,9 @@ export function StartScreen() {
             return false
         }
 
-        // Get Telegram user data
+        // Get Telegram user data - prioritize Telegram over debug mode
         if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-            console.log('Telegram WebApp detected')
+            console.log('Telegram WebApp detected - using real user')
             if (!checkAndSetUser()) {
                 // Retry after a short delay if user data is not immediately available
                 setTimeout(() => {
@@ -109,7 +115,8 @@ export function StartScreen() {
                 }, 500)
             }
         } else if (debugMode) {
-            // Set debug user when not in Telegram environment
+            // Only set debug user when NOT in Telegram environment
+            console.log('No Telegram detected - using debug user')
             const debugUser = {
                 id: 12345,
                 first_name: 'Debug',
@@ -119,6 +126,7 @@ export function StartScreen() {
             setCurrentUser(debugUser)
         } else {
             // Wait for Telegram WebApp to load if it's not available yet
+            console.log('Waiting for Telegram WebApp to load...')
             const checkForTelegram = () => {
                 if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
                     console.log('Telegram WebApp loaded later')
@@ -137,6 +145,13 @@ export function StartScreen() {
         }
 
         setDebugMode(false) // Reset debug mode for normal navigation
+
+        // Check if we should use Telegram user instead of debug user
+        if (window.Telegram?.WebApp?.initDataUnsafe?.user && currentUser?.id === 12345) {
+            console.log('Overriding debug user with Telegram user')
+            const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
+            setCurrentUser(telegramUser)
+        }
 
         if (isDriver) {
             setUserType('driver')
@@ -265,18 +280,22 @@ export function StartScreen() {
                                 onClick={() => {
                                     console.log('=== MANUAL USER DETECTION TEST ===');
                                     console.log('Current user from store:', currentUser);
+                                    console.log('Debug mode:', isDebugMode);
+                                    console.log('Telegram available:', !!window.Telegram?.WebApp);
+                                    
                                     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
                                         const telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
                                         console.log('Telegram user:', telegramUser);
                                         setCurrentUser(telegramUser);
                                         console.log('User set to:', telegramUser);
+                                        console.log('Now using real Telegram user instead of debug user');
                                     } else {
                                         console.log('No Telegram user data available');
                                     }
                                     console.log('=== END MANUAL TEST ===');
                                 }}
                             >
-                                Test User Detection
+                                Use Telegram User
                             </Button>
                         </div>
                         
