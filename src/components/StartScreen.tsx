@@ -74,9 +74,17 @@ export function StartScreen() {
                         </Badge>
                     </div>
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">
-                            CryptoLoc Delivery
-                        </h1>
+                        <div className="flex items-center justify-center gap-3">
+                            <h1 className="text-3xl font-bold tracking-tight">
+                                CryptoLoc Delivery
+                            </h1>
+                            {typeof window !== 'undefined' && !window.Telegram?.WebApp && (
+                                <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
+                                    <Bug className="w-3 h-3 mr-1" />
+                                    Debug Mode
+                                </Badge>
+                            )}
+                        </div>
                         <p className="text-muted-foreground text-lg mt-2">
                             Secure crypto-powered logistics platform
                         </p>
@@ -85,7 +93,7 @@ export function StartScreen() {
 
                 {/* Profile Button */}
                 {currentUser && (
-                    <div className="text-center">
+                    <div className="text-center space-y-2">
                         <Button
                             variant="outline"
                             onClick={handleProfileClick}
@@ -93,6 +101,20 @@ export function StartScreen() {
                         >
                             <User className="w-4 h-4" />
                             Profile
+                        </Button>
+                    </div>
+                )}
+
+                {/* Debug Profile Button (for non-Telegram environments) */}
+                {!currentUser && typeof window !== 'undefined' && !window.Telegram?.WebApp && (
+                    <div className="text-center">
+                        <Button
+                            variant="outline"
+                            onClick={handleProfileClick}
+                            className="flex items-center gap-2 border-dashed text-muted-foreground"
+                        >
+                            <User className="w-4 h-4" />
+                            Debug Profile
                         </Button>
                     </div>
                 )}
