@@ -15,7 +15,7 @@ export function diagnoseAuthentication(currentUser: any): AuthDiagnosticResult {
     // Check Telegram availability
     const isTelegramAvailable = typeof window !== 'undefined' && !!window.Telegram;
     const hasWebApp = isTelegramAvailable && !!window.Telegram?.WebApp;
-    const userData = hasWebApp ? window.Telegram.WebApp.initDataUnsafe.user : null;
+    const userData = hasWebApp && window.Telegram?.WebApp ? window.Telegram.WebApp.initDataUnsafe.user : null;
     const hasUserData = !!userData?.id;
     const debugMode = !hasWebApp;
 

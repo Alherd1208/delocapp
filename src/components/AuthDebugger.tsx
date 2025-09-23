@@ -31,7 +31,7 @@ export function AuthDebugger() {
     }
 
     const tryGetTelegramUser = () => {
-        if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+        if (typeof window !== 'undefined' && window.Telegram?.WebApp?.initDataUnsafe?.user) {
             const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
             setCurrentUser(telegramUser)
             runDiagnostic()
