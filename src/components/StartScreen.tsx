@@ -25,9 +25,14 @@ export function StartScreen() {
             if (window.Telegram?.WebApp) {
                 const user = window.Telegram.WebApp.initDataUnsafe.user
                 console.log('Telegram user data:', user)
-                if (user) {
+                console.log('Telegram initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
+
+                if (user && user.id) {
+                    console.log('Setting current user:', user)
                     setCurrentUser(user)
                     return true
+                } else {
+                    console.warn('No valid user data found in Telegram WebApp')
                 }
             }
             return false
@@ -75,13 +80,20 @@ export function StartScreen() {
         if (isDriver) {
             setUserType('driver')
 
-            // Check if driver is already registered
-            const userId = currentUser?.id?.toString()
-            if (!userId) {
-                console.error('No user ID available for driver lookup')
+            // Check if user is authenticated
+            if (!currentUser || !currentUser.id) {
+                console.error('No authenticated user for driver registration')
+                if (window.Telegram?.WebApp?.showAlert) {
+                    window.Telegram.WebApp.showAlert('Authentication required. Please ensure you are logged in through Telegram.')
+                } else {
+                    alert('Authentication required. Please ensure you are logged in through Telegram.')
+                }
                 setScreen('start')
                 return
             }
+
+            // Check if driver is already registered
+            const userId = currentUser.id.toString()
             const existingDriver = getDriverByUserId(userId)
             if (existingDriver) {
                 // Driver already registered, go to orders screen

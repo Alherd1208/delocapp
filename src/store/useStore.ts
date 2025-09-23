@@ -5,6 +5,7 @@ import { Order, Driver, Bid } from '../lib/models'
 const getCurrentUserId = (currentUser: any): string => {
     if (!currentUser?.id) {
         console.warn('No authenticated user found, operations may not work correctly')
+        console.warn('Current user object:', currentUser)
         return 'anonymous'
     }
     return currentUser.id.toString()

@@ -72,16 +72,22 @@ export function DriverRegistrationScreen() {
         }
 
         try {
+            // Validate user authentication
+            if (!currentUser || !currentUser.id) {
+                console.error('No authenticated user for driver registration')
+                console.error('Current user:', currentUser)
+                throw new Error('Authentication required. Please ensure you are logged in through Telegram.')
+            }
+
             // Filter out empty entries
             const priorityDirections = data.priorityDirections.filter(d => d.from && d.to)
             const excludedDirections = data.excludedDirections.filter(d => d.from && d.to)
             const cargoVolumes = data.cargoVolumes.filter(v => v.length > 0 && v.width > 0 && v.height > 0)
 
+            console.log('Creating driver with userId:', currentUser.id.toString())
+
             addDriver({
-                userId: currentUser?.id?.toString() || (() => {
-                    console.error('No authenticated user for driver registration')
-                    throw new Error('Authentication required')
-                })(),
+                userId: currentUser.id.toString(),
                 priorityDirections,
                 excludedDirections,
                 cargoVolumes
@@ -97,8 +103,16 @@ export function DriverRegistrationScreen() {
                 setScreen('driver-orders')
             }, 1000)
         } catch (error) {
+            console.error('Driver registration error:', error)
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('error')
+            }
+
+            // Show error message to user
+            if (window.Telegram?.WebApp?.showAlert) {
+                window.Telegram.WebApp.showAlert(error instanceof Error ? error.message : 'Registration failed. Please try again.')
+            } else {
+                alert(error instanceof Error ? error.message : 'Registration failed. Please try again.')
             }
         }
 
