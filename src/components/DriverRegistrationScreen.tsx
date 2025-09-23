@@ -3,7 +3,7 @@
 import { useStore } from '@/store/useStore'
 import { useState, useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
-import { ArrowLeft, Plus, Minus, Truck, AlertTriangle, Package } from 'lucide-react'
+import { ArrowLeft, Plus, Minus, Truck, AlertTriangle, Package, UserCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { DropdownCitySelector } from './DropdownCitySelector'
+import { logAuthDiagnostic } from '@/utils/authDiagnostic'
 
 interface DriverForm {
     priorityDirections: Array<{ from: string; to: string }>
@@ -22,6 +23,7 @@ export function DriverRegistrationScreen() {
     const { addDriver, setScreen, currentUser, setCurrentUser } = useStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [showDebugPanel, setShowDebugPanel] = useState(false)
+    const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'anonymous' | 'error'>('checking')
     const [debugLogs, setDebugLogs] = useState<string[]>([])
 
     // Function to add logs to debug panel
@@ -67,6 +69,31 @@ export function DriverRegistrationScreen() {
             }
         }
     }, [showDebugPanel])
+
+    // Monitor authentication status
+    useEffect(() => {
+        const checkAuthStatus = () => {
+            if (currentUser?.id) {
+                setAuthStatus('authenticated')
+            } else if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+                // User available in Telegram but not in store
+                const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
+                setCurrentUser(telegramUser)
+                setAuthStatus('authenticated')
+            } else if (!window.Telegram?.WebApp) {
+                setAuthStatus('error')
+            } else {
+                setAuthStatus('anonymous')
+            }
+        }
+
+        checkAuthStatus()
+
+        // Check again after a short delay to catch delayed Telegram loading
+        const timeout = setTimeout(checkAuthStatus, 1000)
+
+        return () => clearTimeout(timeout)
+    }, [currentUser, setCurrentUser])
 
     const {
         register,
@@ -118,24 +145,12 @@ export function DriverRegistrationScreen() {
         }
 
         try {
-            // Debug current user state
-            console.log('=== DRIVER REGISTRATION DEBUG ===')
-            console.log('Current user from store:', currentUser)
-            console.log('Current user type:', typeof currentUser)
-            console.log('Current user ID:', currentUser?.id)
-            console.log('Current user ID type:', typeof currentUser?.id)
-            console.log('Window Telegram available:', !!window.Telegram)
-            console.log('Window Telegram WebApp available:', !!window.Telegram?.WebApp)
-            
-            if (window.Telegram?.WebApp) {
-                console.log('Telegram initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
-                console.log('Telegram user from initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe.user)
-            }
-            console.log('=== END DRIVER REGISTRATION DEBUG ===')
+            // Enhanced authentication diagnostic
+            const authDiagnostic = logAuthDiagnostic(currentUser, 'DRIVER REGISTRATION')
 
-            // Validate user authentication
+            // Validate user authentication with improved logic
             let userId = currentUser?.id
-            
+
             // If no user in store, try to get from Telegram directly
             if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
                 console.log('No user in store, trying to get from Telegram directly')
@@ -146,11 +161,16 @@ export function DriverRegistrationScreen() {
                     userId = telegramUser.id
                 }
             }
-            
+
+            // Enhanced error handling with specific recommendations
             if (!userId) {
+                const errorMessage = authDiagnostic.recommendations.length > 0
+                    ? `Authentication failed: ${authDiagnostic.recommendations.join('. ')}`
+                    : 'Authentication required. Please ensure you are logged in through Telegram.'
+
                 console.error('No authenticated user for driver registration')
-                console.error('Current user:', currentUser)
-                throw new Error('Authentication required. Please ensure you are logged in through Telegram.')
+                console.error('Auth diagnostic:', authDiagnostic)
+                throw new Error(errorMessage)
             }
 
             // Filter out empty entries
@@ -218,6 +238,34 @@ export function DriverRegistrationScreen() {
                         <p className="text-sm text-muted-foreground">Setup your delivery preferences</p>
                     </div>
                 </div>
+
+                {/* Authentication Status Indicator */}
+                <div className="mt-4">
+                    {authStatus === 'checking' && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <div className="h-2 w-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                            Checking authentication...
+                        </div>
+                    )}
+                    {authStatus === 'authenticated' && (
+                        <div className="flex items-center gap-2 text-sm text-green-600">
+                            <UserCheck className="h-4 w-4" />
+                            Authenticated as {currentUser?.first_name || 'User'}
+                        </div>
+                    )}
+                    {authStatus === 'anonymous' && (
+                        <div className="flex items-center gap-2 text-sm text-red-600">
+                            <AlertTriangle className="h-4 w-4" />
+                            Not authenticated - will register as anonymous
+                        </div>
+                    )}
+                    {authStatus === 'error' && (
+                        <div className="flex items-center gap-2 text-sm text-red-600">
+                            <AlertTriangle className="h-4 w-4" />
+                            Telegram not available - running in debug mode
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* Debug Panel */}
@@ -226,7 +274,7 @@ export function DriverRegistrationScreen() {
                     <div className="font-semibold mb-2">🔍 Debug Info:</div>
                     <div>User: {currentUser ? `${currentUser.first_name} (ID: ${currentUser.id})` : 'Not authenticated'}</div>
                     <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
-                    
+
                     <div className="mt-2 space-y-2">
                         <div className="flex gap-2">
                             <Button
