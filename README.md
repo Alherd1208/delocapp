@@ -1,6 +1,6 @@
-# Cargo TMA - Telegram Mini App
+# CryptoLoc - Telegram Mini App
 
-A Telegram Mini App for connecting cargo owners with drivers for efficient delivery services.
+A Telegram Mini App for connecting cargo owners with drivers for efficient delivery services powered by blockchain technology.
 
 ## Features
 
@@ -14,34 +14,50 @@ A Telegram Mini App for connecting cargo owners with drivers for efficient deliv
 1. **Start Screen**: Choose between driver or customer role
 2. **Create Order Screen**: For customers to create delivery orders
 3. **Driver Registration Screen**: For drivers to set up their profile
+4. **Driver Orders Screen**: View and manage available orders
+5. **Profile Screen**: User profile management and settings
 
 ### 🔧 Tech Stack
 - **Frontend**: Next.js 14, React 18, TypeScript
 - **Styling**: Tailwind CSS with Telegram theme integration
 - **State Management**: Zustand
-- **Forms**: React Hook Form with Zod validation
-- **Telegram**: @telegram-apps/sdk
+- **Forms**: React Hook Form with validation
+- **Database**: MongoDB with Mongoose
+- **Telegram**: Native Telegram WebApp integration
+- **UI Components**: shadcn/ui
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn
+- MongoDB (local or Atlas)
 
 ### Installation
 
 1. Clone the repository
+```bash
+git clone <repository-url>
+cd cryptoLoc_App
+```
+
 2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Run the development server:
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+# Edit .env.local with your MongoDB connection string
+```
+
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-4. Build for production:
+5. Build for production:
 ```bash
 npm run build
 ```
@@ -57,8 +73,14 @@ npm run build
 ```
 src/
 ├── app/                 # Next.js app directory
+│   ├── api/            # API routes
+│   └── globals.css     # Global styles
 ├── components/          # React components
-├── store/              # Zustand store
+│   ├── ui/             # shadcn/ui components
+│   └── *.tsx           # Feature components
+├── lib/                # Utility functions and models
+├── services/           # Database and external services
+├── store/              # Zustand state management
 ├── types/              # TypeScript type definitions
 └── ...
 ```
@@ -79,6 +101,9 @@ src/
 - Haptic feedback is integrated for better user experience
 - All forms include proper validation and error handling
 - The app is optimized for mobile viewing within Telegram
+- Debug mode is automatically enabled when running outside Telegram
+- User authentication is handled through Telegram WebApp integration
+- MongoDB is used for persistent data storage
 
 ## Contributing
 
