@@ -109,3 +109,4 @@ export function bidDocumentToBid(doc: BidDocument): Bid {
         createdAt: doc.createdAt,
     };
 }
+

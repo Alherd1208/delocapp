@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { CitySelector } from './CitySelector'
+import { DropdownCitySelector } from './DropdownCitySelector'
 
 interface OrderForm {
     from: string
@@ -124,7 +124,7 @@ export function CreateOrderScreen() {
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="from">From</Label>
-                                <CitySelector
+                                <DropdownCitySelector
                                     value={watch('from') || ''}
                                     onChange={(value) => setValue('from', value, { shouldValidate: true })}
                                     placeholder="Select pickup city"
@@ -134,7 +134,7 @@ export function CreateOrderScreen() {
 
                             <div className="space-y-2">
                                 <Label htmlFor="to">To</Label>
-                                <CitySelector
+                                <DropdownCitySelector
                                     value={watch('to') || ''}
                                     onChange={(value) => setValue('to', value, { shouldValidate: true })}
                                     placeholder="Select destination city"

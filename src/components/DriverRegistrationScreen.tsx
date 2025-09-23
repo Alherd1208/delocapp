@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { CitySelector } from './CitySelector'
+import { DropdownCitySelector } from './DropdownCitySelector'
 
 interface DriverForm {
     priorityDirections: Array<{ from: string; to: string }>
@@ -185,7 +185,7 @@ export function DriverRegistrationScreen() {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
                                                     <Label>From</Label>
-                                                    <CitySelector
+                                                    <DropdownCitySelector
                                                         value={watch(`priorityDirections.${index}.from`) || ''}
                                                         onChange={(value) => setValue(`priorityDirections.${index}.from`, value)}
                                                         placeholder="Select from city"
@@ -193,7 +193,7 @@ export function DriverRegistrationScreen() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>To</Label>
-                                                    <CitySelector
+                                                    <DropdownCitySelector
                                                         value={watch(`priorityDirections.${index}.to`) || ''}
                                                         onChange={(value) => setValue(`priorityDirections.${index}.to`, value)}
                                                         placeholder="Select to city"
@@ -261,7 +261,7 @@ export function DriverRegistrationScreen() {
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
                                                     <Label>From</Label>
-                                                    <CitySelector
+                                                    <DropdownCitySelector
                                                         value={watch(`excludedDirections.${index}.from`) || ''}
                                                         onChange={(value) => setValue(`excludedDirections.${index}.from`, value)}
                                                         placeholder="Select from city"
@@ -269,7 +269,7 @@ export function DriverRegistrationScreen() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>To</Label>
-                                                    <CitySelector
+                                                    <DropdownCitySelector
                                                         value={watch(`excludedDirections.${index}.to`) || ''}
                                                         onChange={(value) => setValue(`excludedDirections.${index}.to`, value)}
                                                         placeholder="Select to city"

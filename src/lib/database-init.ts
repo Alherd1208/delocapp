@@ -22,3 +22,4 @@ export async function initializeDatabase() {
 export function isDatabaseInitialized() {
     return isInitialized;
 }
+

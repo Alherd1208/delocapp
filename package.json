@@ -8,7 +8,8 @@
         "build:original": "next build",
         "start": "next start",
         "lint": "next lint",
-        "deploy": "next build",
+        "deploy": "vercel --prod",
+        "deploy:preview": "vercel",
         "test-mongodb": "node scripts/test-mongodb.js"
     },
     "dependencies": {
