@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react'
 import { useStore } from '@/store/useStore'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { ArrowLeft, User, Package, Truck, Edit, Save, X, Bug, Settings } from 'lucide-react'
+import { ArrowLeft, User, Package, Truck, Bug, Settings } from 'lucide-react'
 
 export function ProfileScreen() {
     const {
@@ -23,12 +22,6 @@ export function ProfileScreen() {
         userType
     } = useStore()
 
-    const [isEditing, setIsEditing] = useState(false)
-    const [editedUser, setEditedUser] = useState({
-        first_name: currentUser?.first_name || '',
-        last_name: currentUser?.last_name || '',
-        username: currentUser?.username || ''
-    })
 
     const [isClient, setIsClient] = useState(false)
     const [isDebugMode, setIsDebugMode] = useState(false)
@@ -64,32 +57,6 @@ export function ProfileScreen() {
     const isDriver = userType === 'driver'
     const driverProfile = isDriver ? getDriverByUserId(currentUser?.id?.toString() || '') : null
 
-    const handleSaveProfile = () => {
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
-        }
-
-        // Update the user data
-        updateCurrentUser({
-            ...currentUser,
-            ...editedUser
-        })
-        setIsEditing(false)
-
-        // Show success feedback
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success')
-        }
-    }
-
-    const handleCancelEdit = () => {
-        setEditedUser({
-            first_name: currentUser?.first_name || '',
-            last_name: currentUser?.last_name || '',
-            username: currentUser?.username || ''
-        })
-        setIsEditing(false)
-    }
 
     const goBack = () => {
         console.log('ProfileScreen goBack clicked')
@@ -149,97 +116,24 @@ export function ProfileScreen() {
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <div className="flex items-center space-x-2">
                         <User className="w-5 h-5" />
-                        <CardTitle className="text-lg">Personal Information</CardTitle>
+                        <CardTitle className="text-lg">Account Information</CardTitle>
                     </div>
-                    {!isEditing ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsEditing(true)}
-                            className="text-primary"
-                        >
-                            <Edit className="w-4 h-4" />
-                        </Button>
-                    ) : (
-                        <div className="flex space-x-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleSaveProfile}
-                                className="text-green-600"
-                            >
-                                <Save className="w-4 h-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleCancelEdit}
-                                className="text-red-600"
-                            >
-                                <X className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    )}
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <Label htmlFor="firstName">First Name</Label>
-                            {isEditing ? (
-                                <Input
-                                    id="firstName"
-                                    value={editedUser.first_name}
-                                    onChange={(e) => setEditedUser(prev => ({ ...prev, first_name: e.target.value }))}
-                                    className="mt-1"
-                                />
-                            ) : (
-                                <p className="mt-1 text-sm text-[var(--tg-theme-hint-color)]">
-                                    {currentUser?.first_name || 'Not set'}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <Label htmlFor="lastName">Last Name</Label>
-                            {isEditing ? (
-                                <Input
-                                    id="lastName"
-                                    value={editedUser.last_name}
-                                    onChange={(e) => setEditedUser(prev => ({ ...prev, last_name: e.target.value }))}
-                                    className="mt-1"
-                                />
-                            ) : (
-                                <p className="mt-1 text-sm text-[var(--tg-theme-hint-color)]">
-                                    {currentUser?.last_name || 'Not set'}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <Label htmlFor="username">Username</Label>
-                            {isEditing ? (
-                                <Input
-                                    id="username"
-                                    value={editedUser.username}
-                                    onChange={(e) => setEditedUser(prev => ({ ...prev, username: e.target.value }))}
-                                    className="mt-1"
-                                    placeholder="@username"
-                                />
-                            ) : (
-                                <p className="mt-1 text-sm text-[var(--tg-theme-hint-color)]">
-                                    {currentUser?.username ? `@${currentUser.username}` : 'Not set'}
-                                </p>
-                            )}
-                        </div>
-                        <div>
-                            <Label>User ID</Label>
-                            <p className="mt-1 text-sm text-[var(--tg-theme-hint-color)]">
-                                {currentUser?.id || 'Anonymous'}
-                            </p>
-                        </div>
                         <div>
                             <Label>Account Type</Label>
                             <div className="mt-1">
                                 <Badge variant="outline" className="text-xs">
                                     {isDriver ? 'Driver' : 'Customer'}
+                                </Badge>
+                            </div>
+                        </div>
+                        <div>
+                            <Label>Status</Label>
+                            <div className="mt-1">
+                                <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                                    {currentUser ? 'Active' : 'Guest'}
                                 </Badge>
                             </div>
                         </div>
