@@ -17,7 +17,9 @@ export interface ChatCreationResult {
 class TelegramService {
     constructor() {
         // Client-side Telegram Mini App service
-        console.log('TelegramService initialized for Mini App')
+        if (typeof window !== 'undefined') {
+            console.log('TelegramService initialized for Mini App')
+        }
     }
 
     /**
@@ -129,5 +131,14 @@ class TelegramService {
     }
 }
 
-// Export a singleton instance
-export const telegramService = new TelegramService()
+// Export a lazy-loaded singleton instance
+let telegramServiceInstance: TelegramService | null = null
+
+export const telegramService = {
+    get instance() {
+        if (!telegramServiceInstance) {
+            telegramServiceInstance = new TelegramService()
+        }
+        return telegramServiceInstance
+    }
+}

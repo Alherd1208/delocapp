@@ -44,7 +44,7 @@ export function ProfileScreen() {
         setIsClient(true)
 
         // Check if we're in debug mode (not in Telegram environment)
-        const debugMode = !window.Telegram?.WebApp
+        const debugMode = typeof window === 'undefined' || !window.Telegram?.WebApp
         setIsDebugMode(debugMode)
 
         loadOrders()

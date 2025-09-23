@@ -158,7 +158,7 @@ export function DriverOrdersScreen() {
             }
 
             // Try to create chat or send notifications
-            const result = await telegramService.createChatBetweenUsers(
+            const result = await telegramService.instance.createChatBetweenUsers(
                 clientUser,
                 driverUser,
                 orderInfo
@@ -175,7 +175,7 @@ export function DriverOrdersScreen() {
                 }
 
                 // Also try to send notification
-                await telegramService.notifyOrderAccepted(
+                await telegramService.instance.notifyOrderAccepted(
                     orderId,
                     order.createdBy,
                     currentUser.id?.toString() || '',

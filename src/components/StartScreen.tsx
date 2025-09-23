@@ -16,7 +16,7 @@ export function StartScreen() {
         setIsClient(true)
 
         // Check if we're in debug mode (not in Telegram environment)
-        const debugMode = !window.Telegram?.WebApp
+        const debugMode = typeof window === 'undefined' || !window.Telegram?.WebApp
         setIsDebugMode(debugMode)
         setDebugMode(debugMode)
 
@@ -34,7 +34,7 @@ export function StartScreen() {
         }
 
         // Get Telegram user data
-        if (window.Telegram?.WebApp) {
+        if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
             console.log('Telegram WebApp detected')
             if (!checkAndSetUser()) {
                 // Retry after a short delay if user data is not immediately available
@@ -54,7 +54,7 @@ export function StartScreen() {
         } else {
             // Wait for Telegram WebApp to load if it's not available yet
             const checkForTelegram = () => {
-                if (window.Telegram?.WebApp) {
+                if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
                     console.log('Telegram WebApp loaded later')
                     checkAndSetUser()
                 } else {
@@ -143,7 +143,7 @@ export function StartScreen() {
                 </div>
 
                 {/* Profile Button */}
-                {(currentUser || window.Telegram?.WebApp) && (
+                {(currentUser || (typeof window !== 'undefined' && window.Telegram?.WebApp)) && (
                     <div className="text-center space-y-2">
                         <Button
                             variant="outline"
