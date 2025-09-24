@@ -27,9 +27,6 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
                         document.documentElement.setAttribute('data-theme', 'dark')
                     }
 
-                    // Log user data for debugging
-                    console.log('Telegram initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
-                    console.log('Telegram user:', window.Telegram.WebApp.initDataUnsafe.user)
                 }
             }
 

@@ -11,7 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { DropdownCitySelector } from './DropdownCitySelector'
-import { logAuthDiagnostic } from '@/utils/authDiagnostic'
 
 interface DriverForm {
     priorityDirections: Array<{ from: string; to: string }>
@@ -22,53 +21,7 @@ interface DriverForm {
 export function DriverRegistrationScreen() {
     const { addDriver, setScreen, currentUser, setCurrentUser } = useStore()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [showDebugPanel, setShowDebugPanel] = useState(false)
-    const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'anonymous' | 'error'>('checking')
-    const [debugLogs, setDebugLogs] = useState<string[]>([])
-
-    // Function to add logs to debug panel
-    const addDebugLog = (message: string) => {
-        const timestamp = new Date().toLocaleTimeString()
-        setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`])
-    }
-
-    // Function to format console arguments properly
-    const formatConsoleArgs = (args: any[]): string => {
-        return args.map(arg => {
-            if (typeof arg === 'object' && arg !== null) {
-                return JSON.stringify(arg, null, 2)
-            }
-            return String(arg)
-        }).join(' ')
-    }
-
-    // Override console.log to capture logs
-    useEffect(() => {
-        if (showDebugPanel) {
-            const originalLog = console.log
-            const originalWarn = console.warn
-            const originalError = console.error
-
-            console.log = (...args) => {
-                originalLog(...args)
-                addDebugLog(`LOG: ${formatConsoleArgs(args)}`)
-            }
-            console.warn = (...args) => {
-                originalWarn(...args)
-                addDebugLog(`WARN: ${formatConsoleArgs(args)}`)
-            }
-            console.error = (...args) => {
-                originalError(...args)
-                addDebugLog(`ERROR: ${formatConsoleArgs(args)}`)
-            }
-
-            return () => {
-                console.log = originalLog
-                console.warn = originalWarn
-                console.error = originalError
-            }
-        }
-    }, [showDebugPanel])
+    const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'error'>('checking')
 
     // Monitor authentication status
     useEffect(() => {
@@ -83,7 +36,7 @@ export function DriverRegistrationScreen() {
             } else if (!window.Telegram?.WebApp) {
                 setAuthStatus('error')
             } else {
-                setAuthStatus('anonymous')
+                setAuthStatus('error')
             }
         }
 
@@ -145,10 +98,7 @@ export function DriverRegistrationScreen() {
         }
 
         try {
-            // Enhanced authentication diagnostic
-            const authDiagnostic = logAuthDiagnostic(currentUser, 'DRIVER REGISTRATION')
-
-            // Validate user authentication with improved logic
+            // Validate user authentication
             let userId = currentUser?.id
 
             // If no user in store, try to get from Telegram directly
@@ -253,67 +203,15 @@ export function DriverRegistrationScreen() {
                             Authenticated as {currentUser?.first_name || 'User'}
                         </div>
                     )}
-                    {authStatus === 'anonymous' && (
-                        <div className="flex items-center gap-2 text-sm text-red-600">
-                            <AlertTriangle className="h-4 w-4" />
-                            Not authenticated - will register as anonymous
-                        </div>
-                    )}
                     {authStatus === 'error' && (
                         <div className="flex items-center gap-2 text-sm text-red-600">
                             <AlertTriangle className="h-4 w-4" />
-                            Telegram not available - running in debug mode
+                            Telegram not available - authentication required
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Debug Panel */}
-            <div className="px-6">
-                <div className="p-3 bg-muted/50 rounded-lg text-xs text-left border">
-                    <div className="font-semibold mb-2">🔍 Debug Info:</div>
-                    <div>User: {currentUser ? `${currentUser.first_name} (ID: ${currentUser.id})` : 'Not authenticated'}</div>
-                    <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
-
-                    <div className="mt-2 space-y-2">
-                        <div className="flex gap-2">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setShowDebugPanel(!showDebugPanel)}
-                            >
-                                {showDebugPanel ? 'Hide' : 'Show'} Debug Console
-                            </Button>
-                            {showDebugPanel && (
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setDebugLogs([])}
-                                >
-                                    Clear Logs
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {showDebugPanel && (
-                    <div className="mt-2 p-3 bg-black/90 text-green-400 rounded-lg text-xs font-mono max-h-80 overflow-y-auto">
-                        <div className="font-semibold mb-2 text-white">🐛 Debug Console:</div>
-                        {debugLogs.length === 0 ? (
-                            <div className="text-gray-400">No logs yet. Try submitting the form.</div>
-                        ) : (
-                            <div className="space-y-1">
-                                {debugLogs.map((log, index) => (
-                                    <div key={index} className="break-words whitespace-pre-wrap">
-                                        {log}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
 
             <div className="p-6 space-y-6">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

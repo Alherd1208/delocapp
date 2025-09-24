@@ -2,136 +2,42 @@
 
 import { useStore } from '@/store/useStore'
 import { useEffect, useState } from 'react'
-import { Truck, Package, Zap, Bug, User } from 'lucide-react'
+import { Truck, Package, Zap, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { AuthDebugger } from '@/components/AuthDebugger'
 
 export function StartScreen() {
-    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, setDebugMode } = useStore()
+    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId } = useStore()
     const [isClient, setIsClient] = useState(false)
-    const [isDebugMode, setIsDebugMode] = useState(false)
-    const [showDebugPanel, setShowDebugPanel] = useState(false)
-    const [showAuthDebugger, setShowAuthDebugger] = useState(false)
-    const [debugLogs, setDebugLogs] = useState<string[]>([])
-
-    // Function to add logs to debug panel
-    const addDebugLog = (message: string) => {
-        const timestamp = new Date().toLocaleTimeString()
-        setDebugLogs(prev => [...prev.slice(-49), `[${timestamp}] ${message}`])
-    }
-
-    // Function to format console arguments properly
-    const formatConsoleArgs = (args: any[]): string => {
-        return args.map(arg => {
-            if (typeof arg === 'object' && arg !== null) {
-                return JSON.stringify(arg, null, 2)
-            }
-            return String(arg)
-        }).join(' ')
-    }
-
-    // Override console.log to capture logs
-    useEffect(() => {
-        if (showDebugPanel) {
-            const originalLog = console.log
-            const originalWarn = console.warn
-            const originalError = console.error
-
-            console.log = (...args) => {
-                originalLog(...args)
-                addDebugLog(`LOG: ${formatConsoleArgs(args)}`)
-            }
-            console.warn = (...args) => {
-                originalWarn(...args)
-                addDebugLog(`WARN: ${formatConsoleArgs(args)}`)
-            }
-            console.error = (...args) => {
-                originalError(...args)
-                addDebugLog(`ERROR: ${formatConsoleArgs(args)}`)
-            }
-
-            return () => {
-                console.log = originalLog
-                console.warn = originalWarn
-                console.error = originalError
-            }
-        }
-    }, [showDebugPanel])
 
     useEffect(() => {
         setIsClient(true)
 
-        // Check if we're in debug mode (not in Telegram environment)
-        const debugMode = typeof window === 'undefined' || !window.Telegram?.WebApp
-        setIsDebugMode(debugMode)
-        setDebugMode(debugMode)
-
-        console.log('Debug mode detection:', {
-            hasWindow: typeof window !== 'undefined',
-            hasTelegram: !!window.Telegram?.WebApp,
-            debugMode
-        })
-
         // Function to check and set Telegram user
         const checkAndSetUser = () => {
-            console.log('=== TELEGRAM USER DEBUG ===')
-            console.log('window.Telegram exists:', !!window.Telegram)
-            console.log('window.Telegram.WebApp exists:', !!window.Telegram?.WebApp)
-
             if (window.Telegram?.WebApp) {
-                console.log('Telegram WebApp initData:', window.Telegram.WebApp.initData)
-                console.log('Telegram WebApp initDataUnsafe:', window.Telegram.WebApp.initDataUnsafe)
-
                 const user = window.Telegram.WebApp.initDataUnsafe.user
-                console.log('Telegram user data:', user)
-                console.log('User ID:', user?.id)
-                console.log('User first_name:', user?.first_name)
-                console.log('User last_name:', user?.last_name)
-                console.log('User username:', user?.username)
-
                 if (user && user.id) {
-                    console.log('✅ Valid user data found, setting current user:', user)
                     setCurrentUser(user)
                     return true
-                } else {
-                    console.warn('❌ No valid user data found in Telegram WebApp')
-                    console.warn('User object:', user)
-                    console.warn('User ID type:', typeof user?.id)
                 }
-            } else {
-                console.warn('❌ Telegram WebApp not available')
             }
-            console.log('=== END TELEGRAM USER DEBUG ===')
             return false
         }
 
-        // Get Telegram user data - prioritize Telegram over debug mode
+        // Get Telegram user data
         if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-            console.log('Telegram WebApp detected - using real user')
             if (!checkAndSetUser()) {
                 // Retry after a short delay if user data is not immediately available
                 setTimeout(() => {
                     checkAndSetUser()
                 }, 500)
             }
-        } else if (debugMode) {
-            // Only set debug user when NOT in Telegram environment
-            console.log('No Telegram detected - using debug user')
-            const debugUser = {
-                id: 12345,
-                first_name: 'Debug',
-                last_name: 'User',
-                username: 'debug_user'
-            }
-            setCurrentUser(debugUser)
         } else {
             // Wait for Telegram WebApp to load if it's not available yet
-            console.log('Waiting for Telegram WebApp to load...')
             const checkForTelegram = () => {
                 if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-                    console.log('Telegram WebApp loaded later')
                     checkAndSetUser()
                 } else {
                     setTimeout(checkForTelegram, 100)
@@ -139,20 +45,11 @@ export function StartScreen() {
             }
             checkForTelegram()
         }
-    }, [setCurrentUser, setDebugMode])
+    }, [setCurrentUser])
 
     const handleDriverChoice = (isDriver: boolean) => {
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
-        }
-
-        setDebugMode(false) // Reset debug mode for normal navigation
-
-        // Check if we should use Telegram user instead of debug user
-        if (window.Telegram?.WebApp?.initDataUnsafe?.user && currentUser?.id === 12345) {
-            console.log('Overriding debug user with Telegram user')
-            const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
-            setCurrentUser(telegramUser)
         }
 
         if (isDriver) {
@@ -163,17 +60,14 @@ export function StartScreen() {
 
             // If no user in store, try to get from Telegram directly
             if (!userId && window.Telegram?.WebApp?.initDataUnsafe?.user) {
-                console.log('No user in store, trying to get from Telegram directly in StartScreen')
                 const telegramUser = window.Telegram.WebApp.initDataUnsafe.user
                 if (telegramUser && telegramUser.id) {
-                    console.log('Found user in Telegram, updating store:', telegramUser)
                     setCurrentUser(telegramUser)
                     userId = telegramUser.id
                 }
             }
 
             if (!userId) {
-                console.error('No authenticated user for driver registration')
                 if (window.Telegram?.WebApp?.showAlert) {
                     window.Telegram.WebApp.showAlert('Authentication required. Please ensure you are logged in through Telegram.')
                 } else {
@@ -198,16 +92,7 @@ export function StartScreen() {
         }
     }
 
-    const handleDebugOrders = () => {
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
-        }
-        setDebugMode(true)
-        setScreen('driver-orders')
-    }
-
     const handleProfileClick = () => {
-        console.log('Profile button clicked, currentUser:', currentUser)
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
@@ -232,12 +117,6 @@ export function StartScreen() {
                             <h1 className="text-3xl font-bold tracking-tight">
                                 CryptoLoc Delivery
                             </h1>
-                            {isClient && isDebugMode && (
-                                <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
-                                    <Bug className="w-3 h-3 mr-1" />
-                                    Debug Mode
-                                </Badge>
-                            )}
                         </div>
                         <p className="text-muted-foreground text-lg mt-2">
                             Secure crypto-powered logistics platform
@@ -246,117 +125,15 @@ export function StartScreen() {
                 </div>
 
                 {/* Profile Button */}
-                {(currentUser || (typeof window !== 'undefined' && window.Telegram?.WebApp)) && (
+                {currentUser && (
                     <div className="text-center space-y-2">
                         <Button
                             variant="outline"
                             onClick={handleProfileClick}
-                            className={`flex items-center gap-2 ${!currentUser ? 'border-dashed opacity-70' : ''}`}
+                            className="flex items-center gap-2"
                         >
                             <User className="w-4 h-4" />
-                            {currentUser ? 'Profile' : 'Profile (Loading...)'}
-                        </Button>
-                    </div>
-                )}
-
-                {/* Debug info */}
-                <div className="p-3 bg-muted/50 rounded-lg text-xs text-left border">
-                    <div className="font-semibold mb-2">🔍 Debug Info:</div>
-                    <div>User: {currentUser ? `${currentUser.first_name} (ID: ${currentUser.id})` : 'Not authenticated'}</div>
-                    <div>Telegram: {typeof window !== 'undefined' && window.Telegram?.WebApp ? 'Available' : 'Not available'}</div>
-                    <div>Debug Mode: {isDebugMode ? 'Yes' : 'No'}</div>
-
-                    {/* Debug controls */}
-                    <div className="mt-2 space-y-2">
-                        <div className="flex gap-2">
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setShowDebugPanel(!showDebugPanel)}
-                            >
-                                {showDebugPanel ? 'Hide' : 'Show'} Debug Panel
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setShowAuthDebugger(!showAuthDebugger)}
-                            >
-                                {showAuthDebugger ? 'Hide' : 'Show'} Auth Debugger
-                            </Button>
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => {
-                                    console.log('=== MANUAL USER DETECTION TEST ===');
-                                    console.log('Current user from store:', currentUser);
-                                    console.log('Debug mode:', isDebugMode);
-                                    console.log('Telegram available:', !!window.Telegram?.WebApp);
-
-                                    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-                                        const telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
-                                        console.log('Telegram user:', telegramUser);
-                                        setCurrentUser(telegramUser);
-                                        console.log('User set to:', telegramUser);
-                                        console.log('Now using real Telegram user instead of debug user');
-                                    } else {
-                                        console.log('No Telegram user data available');
-                                    }
-                                    console.log('=== END MANUAL TEST ===');
-                                }}
-                            >
-                                Use Telegram User
-                            </Button>
-                        </div>
-
-                        {showDebugPanel && (
-                            <div className="mt-2">
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setDebugLogs([])}
-                                >
-                                    Clear Logs
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Debug Panel */}
-                {showDebugPanel && (
-                    <div className="p-3 bg-black/90 text-green-400 rounded-lg text-xs font-mono max-h-80 overflow-y-auto">
-                        <div className="font-semibold mb-2 text-white">🐛 Debug Console:</div>
-                        {debugLogs.length === 0 ? (
-                            <div className="text-gray-400">No logs yet. Try the "Test User Detection" button or register as a driver.</div>
-                        ) : (
-                            <div className="space-y-1">
-                                {debugLogs.map((log, index) => (
-                                    <div key={index} className="break-words whitespace-pre-wrap">
-                                        {log}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Auth Debugger */}
-                {showAuthDebugger && (
-                    <div className="mt-6">
-                        <AuthDebugger />
-                    </div>
-                )}
-
-                {/* Debug Profile Button (for non-Telegram environments) */}
-                {isClient && !currentUser && isDebugMode && (
-                    <div className="text-center">
-                        <Button
-                            variant="outline"
-                            onClick={handleProfileClick}
-                            className="flex items-center gap-2 border-dashed text-muted-foreground"
-                        >
-                            <User className="w-4 h-4" />
-                            Debug Profile
+                            Profile
                         </Button>
                     </div>
                 )}
@@ -432,18 +209,6 @@ export function StartScreen() {
                     </div>
                 </div>
 
-                {/* Debug Button */}
-                <div className="text-center">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleDebugOrders}
-                        className="text-xs text-muted-foreground border-dashed hover:border-solid"
-                    >
-                        <Bug className="w-3 h-3 mr-1" />
-                        Debug: View Orders
-                    </Button>
-                </div>
 
                 {/* Footer */}
                 <div className="text-center space-y-2">

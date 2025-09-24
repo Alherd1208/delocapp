@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { DriverProfileEditor } from '@/components/DriverProfileEditor'
-import { ArrowLeft, User, Package, Truck, Bug, Settings, Edit } from 'lucide-react'
+import { ArrowLeft, User, Package, Truck, Settings, Edit } from 'lucide-react'
 
 export function ProfileScreen() {
     const {
@@ -27,34 +27,14 @@ export function ProfileScreen() {
 
 
     const [isClient, setIsClient] = useState(false)
-    const [isDebugMode, setIsDebugMode] = useState(false)
     const [isEditingProfile, setIsEditingProfile] = useState(false)
-    const [debugUser, setDebugUser] = useState({
-        id: 12345,
-        first_name: 'Debug',
-        last_name: 'User',
-        username: 'debug_user'
-    })
 
     // Load data when component mounts
     useEffect(() => {
-        console.log('ProfileScreen mounted, currentUser:', currentUser)
         setIsClient(true)
-
-        // Check if we're in debug mode (not in Telegram environment)
-        const debugMode = typeof window === 'undefined' || !window.Telegram?.WebApp
-        console.log('ProfileScreen debugMode:', debugMode)
-        setIsDebugMode(debugMode)
-
         loadOrders()
         loadDrivers()
-
-        // If in debug mode and no current user, set debug user
-        if (debugMode && !currentUser) {
-            console.log('Setting debug user in ProfileScreen')
-            updateCurrentUser(debugUser)
-        }
-    }, [loadOrders, loadDrivers, currentUser, updateCurrentUser, debugUser])
+    }, [loadOrders, loadDrivers])
 
     const userOrders = getUserOrders()
     const acceptedOrders = getUserAcceptedOrders()
@@ -70,11 +50,6 @@ export function ProfileScreen() {
         setScreen('start')
     }
 
-    const handleDebugUserChange = (field: string, value: string | number) => {
-        const newDebugUser = { ...debugUser, [field]: value }
-        setDebugUser(newDebugUser)
-        updateCurrentUser(newDebugUser)
-    }
 
     const handleEditProfile = () => {
         setIsEditingProfile(true)
@@ -164,70 +139,6 @@ export function ProfileScreen() {
                 </CardContent>
             </Card>
 
-            {/* Debug Controls (only in debug mode) */}
-            {isClient && isDebugMode && (
-                <Card className="mb-6 bg-orange-50 border-orange-200">
-                    <CardHeader>
-                        <div className="flex items-center space-x-2">
-                            <Bug className="w-5 h-5 text-orange-600" />
-                            <CardTitle className="text-lg text-orange-800">Debug Mode</CardTitle>
-                            <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
-                                Testing Environment
-                            </Badge>
-                        </div>
-                        <CardDescription className="text-orange-700">
-                            You're running outside of Telegram. Use these controls to simulate user data.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 gap-4">
-                            <div>
-                                <Label htmlFor="debugUserId">User ID</Label>
-                                <Input
-                                    id="debugUserId"
-                                    type="number"
-                                    value={debugUser.id}
-                                    onChange={(e) => handleDebugUserChange('id', parseInt(e.target.value) || 12345)}
-                                    className="mt-1"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="debugFirstName">First Name</Label>
-                                <Input
-                                    id="debugFirstName"
-                                    value={debugUser.first_name}
-                                    onChange={(e) => handleDebugUserChange('first_name', e.target.value)}
-                                    className="mt-1"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="debugLastName">Last Name</Label>
-                                <Input
-                                    id="debugLastName"
-                                    value={debugUser.last_name}
-                                    onChange={(e) => handleDebugUserChange('last_name', e.target.value)}
-                                    className="mt-1"
-                                />
-                            </div>
-                            <div>
-                                <Label htmlFor="debugUsername">Username</Label>
-                                <Input
-                                    id="debugUsername"
-                                    value={debugUser.username}
-                                    onChange={(e) => handleDebugUserChange('username', e.target.value)}
-                                    className="mt-1"
-                                    placeholder="debug_user"
-                                />
-                            </div>
-                        </div>
-                        <Separator />
-                        <div className="flex items-center gap-2 text-sm text-orange-700">
-                            <Settings className="w-4 h-4" />
-                            <span>Changes are applied automatically for testing</span>
-                        </div>
-                    </CardContent>
-                </Card>
-            )}
 
             {/* Driver Profile Info (if driver) */}
             {isDriver && driverProfile && (

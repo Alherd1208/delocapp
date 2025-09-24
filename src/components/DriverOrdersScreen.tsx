@@ -1,7 +1,7 @@
 'use client'
 
 import { useStore } from '@/store/useStore'
-import { ArrowLeft, Package, MapPin, DollarSign, Clock, Star, Bug, User } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, DollarSign, Clock, Star, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { Order, Driver } from '@/lib/models'
 
 export function DriverOrdersScreen() {
-    const { setScreen, currentUser, getDriverByUserId, orders, isDebugMode, setDebugMode, acceptOrder } = useStore()
+    const { setScreen, currentUser, getDriverByUserId, orders, acceptOrder } = useStore()
     const [acceptingOrders, setAcceptingOrders] = useState<Set<string>>(new Set())
 
     const userId = currentUser?.id?.toString()
@@ -21,7 +21,6 @@ export function DriverOrdersScreen() {
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
-        setDebugMode(false) // Reset debug mode when going back
         setScreen('start')
     }
 
@@ -57,19 +56,6 @@ export function DriverOrdersScreen() {
 
     // Get filtered and sorted orders
     const getFilteredAndSortedOrders = () => {
-        // In debug mode, show all pending orders without driver filtering
-        if (isDebugMode && !currentDriver) {
-            return orders
-                .filter(order => order.status === 'pending')
-                .sort((a, b) => {
-                    // Sort by payment amount (descending), then by creation date
-                    if (a.paymentAmount !== b.paymentAmount) {
-                        return b.paymentAmount - a.paymentAmount
-                    }
-                    return b.createdAt.getTime() - a.createdAt.getTime()
-                })
-        }
-
         if (!currentDriver) return []
 
         // Filter available orders (pending status and not excluded) and assigned orders to current driver
@@ -210,7 +196,7 @@ export function DriverOrdersScreen() {
         }
     }
 
-    if (!currentDriver && !isDebugMode) {
+    if (!currentDriver) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center p-6">
                 <Card className="w-full max-w-md">
@@ -246,12 +232,6 @@ export function DriverOrdersScreen() {
                     <div className="flex-1">
                         <div className="flex items-center gap-2">
                             <h1 className="text-xl font-bold">Available Orders</h1>
-                            {isDebugMode && (
-                                <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
-                                    <Bug className="h-3 w-3 mr-1" />
-                                    Debug Mode
-                                </Badge>
-                            )}
                         </div>
                         <p className="text-sm opacity-90">
                             {sortedOrders.length} orders available

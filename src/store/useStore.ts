@@ -2,11 +2,11 @@ import { create } from 'zustand'
 import { Order, Driver, Bid } from '../lib/models'
 
 // Utility function to safely get current user ID
-const getCurrentUserId = (currentUser: any): string => {
+const getCurrentUserId = (currentUser: any): string | null => {
     if (!currentUser?.id) {
         console.warn('No authenticated user found, operations may not work correctly')
         console.warn('Current user object:', currentUser)
-        return 'anonymous'
+        return null
     }
     return currentUser.id.toString()
 }
@@ -18,7 +18,6 @@ interface AppState {
     drivers: Driver[]
     bids: Bid[]
     currentUser: any
-    isDebugMode: boolean
 
     // Actions
     setScreen: (screen: AppState['currentScreen']) => void
@@ -28,7 +27,6 @@ interface AppState {
     addBid: (bid: Omit<Bid, 'id' | 'createdAt'>) => Promise<void>
     setCurrentUser: (user: any) => void
     getDriverByUserId: (userId: string) => Driver | undefined
-    setDebugMode: (isDebug: boolean) => void
     acceptOrder: (orderId: string, driverId: string) => Promise<void>
     updateOrderChatId: (orderId: string, chatId: string) => Promise<void>
     loadOrders: () => Promise<void>
@@ -91,11 +89,9 @@ export const useStore = create<AppState>((set, get) => ({
     drivers: [],
     bids: [],
     currentUser: null,
-    isDebugMode: false,
 
     setScreen: (screen) => set({ currentScreen: screen }),
     setUserType: (type) => set({ userType: type }),
-    setDebugMode: (isDebug) => set({ isDebugMode: isDebug }),
 
     loadOrders: async () => {
         try {
@@ -155,12 +151,6 @@ export const useStore = create<AppState>((set, get) => ({
     },
 
     addDriver: async (driverData) => {
-        console.log('=== STORE addDriver DEBUG ===');
-        console.log('Driver data being sent to API:', driverData);
-        console.log('Driver userId:', driverData.userId);
-        console.log('Driver userId type:', typeof driverData.userId);
-        console.log('=== END STORE addDriver DEBUG ===');
-        
         try {
             const response = await fetch('/api/drivers', {
                 method: 'POST',
@@ -292,13 +282,14 @@ export const useStore = create<AppState>((set, get) => ({
     getUserOrders: () => {
         const state = get()
         const userId = getCurrentUserId(state.currentUser)
+        if (!userId) return []
         return state.orders.filter(order => order.createdBy === userId)
     },
 
     getUserAcceptedOrders: () => {
         const state = get()
         const userId = getCurrentUserId(state.currentUser)
-        if (userId === 'anonymous') return []
+        if (!userId) return []
 
         const driver = state.drivers.find(driver => driver.userId === userId)
         if (!driver) return []
