@@ -3,43 +3,43 @@ import './globals.css'
 import { TelegramProvider } from '@/components/TelegramProvider'
 
 export const metadata: Metadata = {
-    title: 'Cargo TMA',
-    description: 'Telegram Mini App for cargo delivery',
+  title: 'Cargo TMA',
+  description: 'Telegram Mini App for cargo delivery',
 }
 
 export default function RootLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) {
-    return (
-        <html lang="en">
-            <body>
-                <TelegramProvider>
-                    {children}
-                </TelegramProvider>
+  return (
+    <html lang="en">
+      <body>
+        <TelegramProvider>
+          {children}
+        </TelegramProvider>
 
-                {/* Eruda Debug Tool */}
-                <button id="debug-toggle"
-                    style={{
-                        position: 'fixed',
-                        right: '12px',
-                        bottom: '12px',
-                        zIndex: 999999,
-                        padding: '10px 12px',
-                        borderRadius: '999px',
-                        border: 'none',
-                        boxShadow: '0 2px 8px rgba(0,0,0,.2)',
-                        background: '#111',
-                        color: '#fff',
-                        font: '600 12px/1 system-ui,Segoe UI,Roboto,sans-serif'
-                    }}>
-                    Dev
-                </button>
+        {/* Eruda Debug Tool */}
+        <button id="debug-toggle"
+          style={{
+            position: 'fixed',
+            right: '12px',
+            bottom: '12px',
+            zIndex: 999999,
+            padding: '10px 12px',
+            borderRadius: '999px',
+            border: 'none',
+            boxShadow: '0 2px 8px rgba(0,0,0,.2)',
+            background: '#111',
+            color: '#fff',
+            font: '600 12px/1 system-ui,Segoe UI,Roboto,sans-serif'
+          }}>
+          Dev
+        </button>
 
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
 (function () {
   const isDebug = /(?:\\?|&)debug\\b/.test(location.search);
   let erudaLoaded = false;
@@ -70,28 +70,42 @@ export default function RootLayout({
     else eruda.show();
   }
 
-  // Button behavior
-  const btn = document.getElementById('debug-toggle');
-  btn.addEventListener('click', toggleEruda);
+  // Wait for DOM to be ready
+  function initDebug() {
+    const btn = document.getElementById('debug-toggle');
+    if (!btn) {
+      console.error('Debug button not found');
+      return;
+    }
 
-  // Auto-open if ?debug is present
-  if (isDebug) loadEruda(() => eruda.show());
+    // Button behavior
+    btn.addEventListener('click', toggleEruda);
 
-  // Optional: hide the button in production (remove this if you want it always visible)
-  if (!isDebug) {
-    // show the pill only after long-press (3s) on body to avoid accidental exposure
-    btn.style.opacity = '0.2';
-    let pressTimer;
-    document.addEventListener('touchstart', () => {
-      pressTimer = setTimeout(() => (btn.style.opacity = '1'), 3000);
-    }, {passive:true});
-    document.addEventListener('touchend', () => clearTimeout(pressTimer));
+    // Auto-open if ?debug is present
+    if (isDebug) {
+      loadEruda(() => eruda.show());
+    } else {
+      // show the pill only after long-press (3s) on body to avoid accidental exposure
+      btn.style.opacity = '0.2';
+      let pressTimer;
+      document.addEventListener('touchstart', () => {
+        pressTimer = setTimeout(() => (btn.style.opacity = '1'), 3000);
+      }, {passive:true});
+      document.addEventListener('touchend', () => clearTimeout(pressTimer));
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDebug);
+  } else {
+    initDebug();
   }
 })();
                         `
-                    }}
-                />
-            </body>
-        </html>
-    )
+          }}
+        />
+      </body>
+    </html>
+  )
 }
