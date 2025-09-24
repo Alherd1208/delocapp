@@ -267,7 +267,7 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                         <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
                             <div className="flex-1 grid grid-cols-3 gap-2">
                                 <div className="space-y-1">
-                                    <Label className="text-xs font-medium text-center block leading-tight"><span className="block">Length</span><span className="block">(cm)</span></Label>
+                                    <Label className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Length{"\n"}(cm)</Label>
                                     <Input
                                         type="number"
                                         value={volume.length}
@@ -277,7 +277,7 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label className="text-xs font-medium text-center block leading-tight"><span className="block">Width</span><span className="block">(cm)</span></Label>
+                                    <Label className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Width{"\n"}(cm)</Label>
                                     <Input
                                         type="number"
                                         value={volume.width}
@@ -287,7 +287,7 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label className="text-xs font-medium text-center block leading-tight"><span className="block">Height</span><span className="block">(cm)</span></Label>
+                                    <Label className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Height{"\n"}(cm)</Label>
                                     <Input
                                         type="number"
                                         value={volume.height}
