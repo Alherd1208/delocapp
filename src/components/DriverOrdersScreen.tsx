@@ -11,7 +11,7 @@ import { useState } from 'react'
 import { Order, Driver } from '@/lib/models'
 
 export function DriverOrdersScreen() {
-    const { setScreen, currentUser, getDriverByUserId, orders, acceptOrder } = useStore()
+    const { setScreen, currentUser, getDriverByUserId, orders, acceptOrder, setSuppressAutoRedirectOnce } = useStore()
     const [acceptingOrders, setAcceptingOrders] = useState<Set<string>>(new Set())
 
     const userId = currentUser?.id?.toString()
@@ -21,6 +21,8 @@ export function DriverOrdersScreen() {
         if (window.Telegram?.WebApp?.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
+        // Ensure StartScreen shows the role choice instead of auto-redirecting
+        setSuppressAutoRedirectOnce(true)
         setScreen('start')
     }
 

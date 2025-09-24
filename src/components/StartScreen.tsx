@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 
 export function StartScreen() {
-    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, loadDrivers, getUserOrders, loadOrders } = useStore()
+    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, loadDrivers, getUserOrders, loadOrders, suppressAutoRedirectOnce, setSuppressAutoRedirectOnce } = useStore()
     const [isClient, setIsClient] = useState(false)
     const [isCheckingUser, setIsCheckingUser] = useState(true)
 
@@ -79,7 +79,12 @@ export function StartScreen() {
                     console.log('Existing driver found:', existingDriver)
                     console.log('User orders found:', userOrders.length)
 
-                    if (existingDriver) {
+                    if (suppressAutoRedirectOnce) {
+                        // Honor the flag once, then clear it so future visits behave normally
+                        setSuppressAutoRedirectOnce(false)
+                        setIsCheckingUser(false)
+                        return
+                    } else if (existingDriver) {
                         // User is already registered as driver, redirect to driver orders screen
                         console.log('Redirecting existing driver to driver orders screen')
                         setUserType('driver')

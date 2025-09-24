@@ -18,10 +18,12 @@ interface AppState {
     drivers: Driver[]
     bids: Bid[]
     currentUser: any
+    suppressAutoRedirectOnce: boolean
 
     // Actions
     setScreen: (screen: AppState['currentScreen']) => void
     setUserType: (type: AppState['userType']) => void
+    setSuppressAutoRedirectOnce: (value: boolean) => void
     addOrder: (order: Omit<Order, 'id' | 'createdAt'>) => Promise<void>
     addDriver: (driver: Omit<Driver, 'id' | 'createdAt'>) => Promise<void>
     addBid: (bid: Omit<Bid, 'id' | 'createdAt'>) => Promise<void>
@@ -89,9 +91,11 @@ export const useStore = create<AppState>((set, get) => ({
     drivers: [],
     bids: [],
     currentUser: null,
+    suppressAutoRedirectOnce: false,
 
     setScreen: (screen) => set({ currentScreen: screen }),
     setUserType: (type) => set({ userType: type }),
+    setSuppressAutoRedirectOnce: (value) => set({ suppressAutoRedirectOnce: value }),
 
     loadOrders: async () => {
         try {
