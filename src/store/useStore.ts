@@ -152,6 +152,7 @@ export const useStore = create<AppState>((set, get) => ({
 
     addDriver: async (driverData) => {
         try {
+            console.log('Store addDriver called with userId:', driverData.userId);
             const response = await fetch('/api/drivers', {
                 method: 'POST',
                 headers: {

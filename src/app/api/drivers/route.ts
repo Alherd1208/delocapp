@@ -17,6 +17,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         const driverData = await request.json();
+        console.log('API POST /drivers called with userId:', driverData.userId);
         const driver = await databaseService.createDriver(driverData);
         return NextResponse.json(driver, { status: 201 });
     } catch (error) {

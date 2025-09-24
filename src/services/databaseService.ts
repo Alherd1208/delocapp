@@ -107,6 +107,7 @@ export class DatabaseService {
 
     // Driver operations
     async createDriver(driverData: Omit<Driver, 'id' | 'createdAt'>): Promise<Driver> {
+        console.log('DatabaseService createDriver called with userId:', driverData.userId);
         const collection = await this.getDriversCollection();
         const now = new Date();
 
