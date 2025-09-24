@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 
 export function StartScreen() {
-    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId } = useStore()
+    const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, loadDrivers, getUserOrders, loadOrders } = useStore()
     const [isClient, setIsClient] = useState(false)
+    const [isCheckingUser, setIsCheckingUser] = useState(true)
 
     useEffect(() => {
         setIsClient(true)
@@ -24,6 +25,22 @@ export function StartScreen() {
                 }
             }
             return false
+        }
+
+        // Function to check if user is already registered and redirect accordingly
+        const checkUserRegistration = async () => {
+            const userId = currentUser?.id
+            if (!userId) return
+
+            // Load drivers to check if user is already registered
+            await loadDrivers()
+
+            const existingDriver = getDriverByUserId(userId.toString())
+            if (existingDriver) {
+                // User is already registered as driver, redirect to orders screen
+                setUserType('driver')
+                setScreen('driver-orders')
+            }
         }
 
         // Get Telegram user data
@@ -45,7 +62,50 @@ export function StartScreen() {
             }
             checkForTelegram()
         }
-    }, [setCurrentUser])
+    }, [setCurrentUser, currentUser, getDriverByUserId, setUserType, setScreen])
+
+    // Check user registration when currentUser changes
+    useEffect(() => {
+        if (currentUser?.id) {
+            const checkUserRegistration = async () => {
+                try {
+                    console.log('Checking user registration for user:', currentUser.id)
+                    // Load drivers and orders to check if user is already registered or has orders
+                    await Promise.all([loadDrivers(), loadOrders()])
+
+                    const existingDriver = getDriverByUserId(currentUser.id.toString())
+                    const userOrders = getUserOrders()
+
+                    console.log('Existing driver found:', existingDriver)
+                    console.log('User orders found:', userOrders.length)
+
+                    if (existingDriver) {
+                        // User is already registered as driver, redirect to driver orders screen
+                        console.log('Redirecting existing driver to driver orders screen')
+                        setUserType('driver')
+                        setScreen('driver-orders')
+                    } else if (userOrders.length > 0) {
+                        // User has created orders, redirect to profile to see their orders
+                        console.log('Redirecting user with orders to profile screen')
+                        setUserType('customer')
+                        setScreen('profile')
+                    } else {
+                        // User is not registered and has no orders, show the start screen
+                        console.log('User not registered and no orders, showing start screen')
+                        setIsCheckingUser(false)
+                    }
+                } catch (error) {
+                    console.error('Error checking user registration:', error)
+                    setIsCheckingUser(false)
+                }
+            }
+
+            checkUserRegistration()
+        } else {
+            // No user yet, show the start screen
+            setIsCheckingUser(false)
+        }
+    }, [currentUser, getDriverByUserId, setUserType, setScreen, loadDrivers, getUserOrders, loadOrders])
 
     const handleDriverChoice = (isDriver: boolean) => {
         if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -97,6 +157,23 @@ export function StartScreen() {
             window.Telegram.WebApp.HapticFeedback.impactOccurred('light')
         }
         setScreen('profile')
+    }
+
+    // Show loading screen while checking user registration
+    if (isCheckingUser) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex flex-col items-center justify-center p-6">
+                <div className="text-center space-y-4">
+                    <div className="w-20 h-20 mx-auto bg-primary rounded-2xl flex items-center justify-center shadow-lg">
+                        <Zap className="w-10 h-10 text-primary-foreground animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-2xl font-bold text-foreground">Cargo TMA</h1>
+                        <p className="text-muted-foreground">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     return (
