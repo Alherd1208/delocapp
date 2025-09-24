@@ -114,12 +114,12 @@ export function DriverRegistrationScreen() {
 
             // Enhanced error handling with specific recommendations
             if (!userId) {
-                const errorMessage = authDiagnostic.recommendations.length > 0
-                    ? `Authentication failed: ${authDiagnostic.recommendations.join('. ')}`
-                    : 'Authentication required. Please ensure you are logged in through Telegram.'
+                const errorMessage = 'Authentication required. Please ensure you are logged in through Telegram.'
 
                 console.error('No authenticated user for driver registration')
-                console.error('Auth diagnostic:', authDiagnostic)
+                console.error('Telegram WebApp available:', !!window.Telegram?.WebApp)
+                console.error('Current user in store:', currentUser)
+                console.error('Telegram user data:', window.Telegram?.WebApp?.initDataUnsafe?.user)
                 throw new Error(errorMessage)
             }
 
