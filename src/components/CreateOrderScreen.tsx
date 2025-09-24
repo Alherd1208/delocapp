@@ -50,7 +50,12 @@ export function CreateOrderScreen() {
         }
 
         try {
-            addOrder({
+            if (!currentUser?.id) {
+                console.error('No authenticated user for order creation')
+                throw new Error('Authentication required')
+            }
+
+            await addOrder({
                 from: data.from,
                 to: data.to,
                 dimensions: {
@@ -60,10 +65,7 @@ export function CreateOrderScreen() {
                 },
                 paymentAmount: data.paymentAmount,
                 status: 'pending',
-                createdBy: currentUser?.id?.toString() || (() => {
-                    console.error('No authenticated user for order creation')
-                    throw new Error('Authentication required')
-                })()
+                createdBy: currentUser.id.toString()
             })
 
             // Show success feedback
@@ -76,8 +78,19 @@ export function CreateOrderScreen() {
                 setScreen('start')
             }, 1000)
         } catch (error) {
+            console.error('Error creating order:', error)
+
             if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.notificationOccurred('error')
+            }
+
+            // Show error message to user
+            if (window.Telegram?.WebApp?.showAlert) {
+                window.Telegram.WebApp.showAlert(
+                    error instanceof Error && error.message === 'Authentication required'
+                        ? 'Please ensure you are logged in through Telegram.'
+                        : 'Failed to create order. Please try again.'
+                )
             }
         }
 
