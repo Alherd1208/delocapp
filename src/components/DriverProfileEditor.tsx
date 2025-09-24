@@ -267,7 +267,7 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                         <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
                             <div className="flex-1 grid grid-cols-3 gap-2">
                                 <div className="space-y-1">
-                                    <Label className="text-xs font-medium text-center block leading-tight">Length<br />(cm)</Label>
+                                    <Label className="text-xs font-medium text-center block leading-tight"><div>Length</div><div>(cm)</div></Label>
                                     <Input
                                         type="number"
                                         value={volume.length}
@@ -277,7 +277,7 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label className="text-xs font-medium text-center block leading-tight">Width<br />(cm)</Label>
+                                    <Label className="text-xs font-medium text-center block leading-tight"><div>Width</div><div>(cm)</div></Label>
                                     <Input
                                         type="number"
                                         value={volume.width}
@@ -287,7 +287,7 @@ export function DriverProfileEditor({ driver, onSave, onCancel }: DriverProfileE
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label className="text-xs font-medium text-center block leading-tight">Height<br />(cm)</Label>
+                                    <Label className="text-xs font-medium text-center block leading-tight"><div>Height</div><div>(cm)</div></Label>
                                     <Input
                                         type="number"
                                         value={volume.height}
