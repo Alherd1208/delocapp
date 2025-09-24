@@ -517,7 +517,7 @@ export function DriverRegistrationScreen() {
 
                                         <div className="grid grid-cols-3 gap-4">
                                             <div className="space-y-2">
-                                                <Label className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Length{"\n"}(m)</Label>
+                                                <Label className="text-xs font-medium text-center block leading-tight">Length<br />(m)</Label>
                                                 <Input
                                                     {...register(`cargoVolumes.${index}.length` as const, {
                                                         min: { value: 0.1, message: 'Min 0.1m' }
@@ -530,7 +530,7 @@ export function DriverRegistrationScreen() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Width{"\n"}(m)</Label>
+                                                <Label className="text-xs font-medium text-center block leading-tight">Width<br />(m)</Label>
                                                 <Input
                                                     {...register(`cargoVolumes.${index}.width` as const, {
                                                         min: { value: 0.1, message: 'Min 0.1m' }
@@ -543,7 +543,7 @@ export function DriverRegistrationScreen() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Height{"\n"}(m)</Label>
+                                                <Label className="text-xs font-medium text-center block leading-tight">Height<br />(m)</Label>
                                                 <Input
                                                     {...register(`cargoVolumes.${index}.height` as const, {
                                                         min: { value: 0.1, message: 'Min 0.1m' }

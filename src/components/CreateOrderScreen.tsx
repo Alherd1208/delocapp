@@ -161,7 +161,7 @@ export function CreateOrderScreen() {
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="length" className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Length{"\n"}(m)</Label>
+                                    <Label htmlFor="length" className="text-xs font-medium text-center block leading-tight">Length<br />(m)</Label>
                                     <Input
                                         {...register('length', {
                                             required: 'Length is required',
@@ -178,7 +178,7 @@ export function CreateOrderScreen() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="width" className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Width{"\n"}(m)</Label>
+                                    <Label htmlFor="width" className="text-xs font-medium text-center block leading-tight">Width<br />(m)</Label>
                                     <Input
                                         {...register('width', {
                                             required: 'Width is required',
@@ -195,7 +195,7 @@ export function CreateOrderScreen() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="height" className="text-xs font-medium text-center block leading-tight" style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}>Height{"\n"}(m)</Label>
+                                    <Label htmlFor="height" className="text-xs font-medium text-center block leading-tight">Height<br />(m)</Label>
                                     <Input
                                         {...register('height', {
                                             required: 'Height is required',
