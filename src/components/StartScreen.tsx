@@ -11,9 +11,27 @@ export function StartScreen() {
     const { setScreen, setUserType, setCurrentUser, currentUser, getDriverByUserId, loadDrivers, getUserOrders, loadOrders, suppressAutoRedirectOnce, setSuppressAutoRedirectOnce } = useStore()
     const [isClient, setIsClient] = useState(false)
     const [isCheckingUser, setIsCheckingUser] = useState(true)
+    const [commitInfo, setCommitInfo] = useState('')
 
     useEffect(() => {
         setIsClient(true)
+
+        // Fetch commit information
+        const fetchCommitInfo = async () => {
+            try {
+                const response = await fetch('/api/commit-info')
+                if (response.ok) {
+                    const data = await response.json()
+                    setCommitInfo(data.commitInfo)
+                }
+            } catch (error) {
+                console.log('Could not fetch commit info:', error)
+                // Fallback to static commit info
+                setCommitInfo('a957f3e - add debug 3')
+            }
+        }
+
+        fetchCommitInfo()
 
         // Function to check and set Telegram user
         const checkAndSetUser = () => {
@@ -183,6 +201,13 @@ export function StartScreen() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex flex-col items-center justify-center p-6">
+            {/* Commit Info */}
+            {commitInfo && (
+                <div className="absolute top-4 right-4 text-xs text-muted-foreground/60 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md border">
+                    {commitInfo}
+                </div>
+            )}
+
             <div className="w-full max-w-lg mx-auto space-y-8">
                 {/* Header */}
                 <div className="text-center space-y-4">
