@@ -32,7 +32,8 @@ export default function RootLayout({
             boxShadow: '0 2px 8px rgba(0,0,0,.2)',
             background: '#111',
             color: '#fff',
-            font: '600 12px/1 system-ui,Segoe UI,Roboto,sans-serif'
+            font: '600 12px/1 system-ui,Segoe UI,Roboto,sans-serif',
+            cursor: 'pointer'
           }}>
           Dev
         </button>
@@ -43,12 +44,16 @@ export default function RootLayout({
 (function () {
   const isDebug = /(?:\\?|&)debug\\b/.test(location.search);
   let erudaLoaded = false;
+  
+  console.log('Debug mode check:', isDebug, 'URL:', location.search);
 
   function loadEruda(cb) {
     if (erudaLoaded) return cb && cb();
+    console.log('Loading Eruda debug tool...');
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/eruda';
     s.onload = function () {
+      console.log('Eruda loaded successfully');
       eruda.init({
         tool: ['console','elements','network','resources','info','snippets'],
         defaults: { displaySize: 60, transparency: 0.95, theme: 'Monokai Pro' }
@@ -56,7 +61,10 @@ export default function RootLayout({
       erudaLoaded = true;
       cb && cb();
     };
-    s.onerror = function () { alert('Failed to load eruda'); };
+    s.onerror = function () { 
+      console.error('Failed to load Eruda');
+      alert('Failed to load eruda'); 
+    };
     document.head.appendChild(s);
   }
 
@@ -83,6 +91,7 @@ export default function RootLayout({
 
     // Auto-open if ?debug is present
     if (isDebug) {
+      btn.style.opacity = '1';
       loadEruda(() => eruda.show());
     } else {
       // show the pill only after long-press (3s) on body to avoid accidental exposure
