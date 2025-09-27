@@ -14,6 +14,7 @@ export function StartScreen() {
     const [commitInfo, setCommitInfo] = useState('')
 
     useEffect(() => {
+        console.log('test2')
         setIsClient(true)
 
         // Fetch commit information
