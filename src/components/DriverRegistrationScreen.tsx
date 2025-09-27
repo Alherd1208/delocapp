@@ -91,6 +91,7 @@ export function DriverRegistrationScreen() {
     })
 
     const onSubmit = async (data: DriverForm) => {
+        console.log('test1 Data:', data)
         setIsSubmitting(true)
 
         if (window.Telegram?.WebApp?.HapticFeedback) {
