@@ -11,6 +11,7 @@ import {
     driverDocumentToDriver,
     bidDocumentToBid,
 } from '../lib/models';
+import { useEffect } from 'react';
 
 export class DatabaseService {
     private static instance: DatabaseService;
@@ -107,7 +108,8 @@ export class DatabaseService {
 
     // Driver operations
     async createDriver(driverData: Omit<Driver, 'id' | 'createdAt'>): Promise<Driver> {
-        console.log('DatabaseService createDriver called with userId:', driverData.userId);
+        useEffect(() => { console.log('test2 ${driverData}'); }, [driverData])
+
         const collection = await this.getDriversCollection();
         const now = new Date();
 
