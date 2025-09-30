@@ -11,7 +11,28 @@ import {
     driverDocumentToDriver,
     bidDocumentToBid,
 } from '../lib/models';
-import { useEffect } from 'react';
+
+// Server-side useEffect-like utility
+class ServerEffectManager {
+    private static effects: Map<string, () => void> = new Map();
+    private static dependencies: Map<string, any[]> = new Map();
+
+    static useEffect(effectId: string, callback: () => void, deps: any[] = []) {
+        const prevDeps = this.dependencies.get(effectId);
+        const hasChanged = !prevDeps || deps.some((dep, index) => dep !== prevDeps[index]);
+
+        if (hasChanged) {
+            this.effects.set(effectId, callback);
+            this.dependencies.set(effectId, deps);
+            callback();
+        }
+    }
+
+    static cleanup(effectId: string) {
+        this.effects.delete(effectId);
+        this.dependencies.delete(effectId);
+    }
+}
 
 export class DatabaseService {
     private static instance: DatabaseService;
@@ -108,7 +129,14 @@ export class DatabaseService {
 
     // Driver operations
     async createDriver(driverData: Omit<Driver, 'id' | 'createdAt'>): Promise<Driver> {
-        useEffect(() => { console.log('test2 ${driverData}'); }, [driverData])
+        // Use server-side useEffect-like functionality
+        ServerEffectManager.useEffect(
+            'createDriver-effect',
+            () => {
+                console.log('test2 driverData:', driverData);
+            },
+            [driverData]
+        );
 
         const collection = await this.getDriversCollection();
         const now = new Date();

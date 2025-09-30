@@ -90,6 +90,11 @@ export function DriverRegistrationScreen() {
         name: 'cargoVolumes'
     })
 
+    // Add useEffect to log form data changes
+    useEffect(() => {
+        console.log('Driver form data changed:', watch())
+    }, [watch])
+
     const onSubmit = async (data: DriverForm) => {
         console.log('test1 Data:', data)
         setIsSubmitting(true)
